@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P.D.S Canvas — 플랜두씨 다이어리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- 헤더 -->
+    <header class="header">
+      <h1 class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+        P.D.S Canvas
+      </h1>
+      <div class="header-actions">
+        <button id="exportBtn" class="hdr-btn" type="button" title="전체 데이터 내보내기">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>내보내기</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 공개 안내 (C82) -->
+    <div class="notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요.
+    </div>
+
+    <!-- 탭 내비게이션 -->
+    <!-- 탭 내비게이션 (감성 다이어리 인덱스 탭) -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="plans" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        계획
+      </button>
+      <button class="tab" data-tab="calendar" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+          <path d="M8 14h.01" />
+          <path d="M12 14h.01" />
+          <path d="M16 14h.01" />
+          <path d="M8 18h.01" />
+          <path d="M12 18h.01" />
+          <path d="M16 18h.01" />
+        </svg>
+        캘린더
+      </button>
+      <button class="tab" data-tab="todos" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4" />
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+        </svg>
+        할 일
+      </button>
+      <button class="tab" data-tab="records" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        실행 기록
+      </button>
+      <button class="tab" data-tab="vlog" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+          <circle cx="12" cy="13" r="4" />
+        </svg>
+        사진·Vlog
+      </button>
+      <button class="tab" data-tab="review" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+        돌아보기
+      </button>
+    </nav>
+
+    <!-- 다이어리 전체를 관통하는 은은한 중앙 제본선 (탭 상단부터 하단까지 연결) -->
+    <div class="book-spine-line" aria-hidden="true"></div>
+
+    <!-- 탭 콘텐츠 (실제 다이어리 북 속지) -->
+    <main class="content">
+      <!-- 실제 다이어리 가운데 중심 3D 책장 넘김 레이어 (앞장/뒷장 실시간 복제 렌더링) -->
+      <div id="pageFlipLayer" class="page-flip-layer" hidden aria-hidden="true">
+        <div id="flippingPage" class="flipping-page">
+          <div class="page-face page-front">
+            <div class="page-clone-inner"></div>
+          </div>
+          <div class="page-face page-back">
+            <div class="page-clone-inner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 계획 탭 -->
+      <section id="tabPlans" class="tab-panel active">
+        <div class="panel-header">
+          <h2>내 계획</h2>
+          <button id="addPlanBtn" class="btn-primary" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+              stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            새 계획
+          </button>
+        </div>
+        <div id="plansList" class="card-list"></div>
+      </section>
+
+      <!-- 캘린더 다이어리 탭 (4번 이미지 형태) -->
+      <section id="tabCalendar" class="tab-panel">
+        <div class="panel-header">
+          <div class="cal-nav-bar">
+            <button id="calPrevBtn" class="btn-outline btn-sm" type="button" title="이전 달">&lt;</button>
+            <div class="cal-jump-pickers">
+              <select id="calYearSelect" class="select-sm cal-select"></select>
+              <select id="calMonthSelect" class="select-sm cal-select"></select>
+            </div>
+            <button id="calNextBtn" class="btn-outline btn-sm" type="button" title="다음 달">&gt;</button>
+            <button id="calTodayBtn" class="btn-outline btn-sm" type="button">오늘</button>
+          </div>
+          <button id="calAddTodoBtn" class="btn-primary btn-sm" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+              stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            일정 스티커 추가
+          </button>
+        </div>
+        <div class="calendar-wrapper">
+          <div class="cal-weekdays">
+            <div class="cal-weekday sun">일</div>
+            <div class="cal-weekday">월</div>
+            <div class="cal-weekday">화</div>
+            <div class="cal-weekday">수</div>
+            <div class="cal-weekday">목</div>
+            <div class="cal-weekday">금</div>
+            <div class="cal-weekday sat">토</div>
+          </div>
+          <div id="calendarGrid" class="cal-grid"></div>
+        </div>
+        <!-- 4번 이미지 하단 다이어리 캐릭터 스티커 데코 -->
+        <div class="diary-sticker-footer">
+            <div class="cat-face-doodle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;">
+                <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58 1.4 3.82-.25 5.56.54 1.25.83 2.63.83 4.44 0 5-4.03 9-9 9s-9-4-9-9c0-1.81.29-3.19.83-4.44C1.57 6.82 1.57 3.58 2.97 3c1.39-.58 4.64.26 6.42 2.26.65-.17 1.33-.26 2-.26z" />
+                <circle cx="9" cy="13" r="1" fill="currentColor" />
+                <circle cx="15" cy="13" r="1" fill="currentColor" />
+                <path d="M10 16.5c1 .5 3 .5 4 0" />
+              </svg>tong
+            </div>
+        </div>
+      </section>
+
+      <!-- 할 일 탭 -->
+      <section id="tabTodos" class="tab-panel">
+        <div class="panel-header">
+          <h2>할 일</h2>
+          <select id="planSelect" class="select"></select>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="todoSearch" class="input-sm" placeholder="검색...">
+          <select id="todoStatusFilter" class="select-sm">
+            <option value="all">전체</option>
+            <option value="진행중">진행중</option>
+            <option value="완료">완료</option>
+          </select>
+          <select id="todoPriorityFilter" class="select-sm">
+            <option value="all">우선순위</option>
+            <option value="높음">높음</option>
+            <option value="보통">보통</option>
+            <option value="낮음">낮음</option>
+          </select>
+          <select id="todoSort" class="select-sm">
+            <option value="created_desc" selected>최신순</option>
+            <option value="created_asc">오래된순</option>
+            <option value="due">마감일순</option>
+            <option value="priority">우선순위순</option>
+          </select>
+        </div>
+        <p class="sort-info" id="sortInfo">정렬: 최신순</p>
+        <button id="addTodoBtn" class="btn-primary btn-sm" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          할 일 추가
+        </button>
+        <div id="todosList" class="card-list"></div>
+      </section>
+
+      <!-- 실행 기록 탭 -->
+      <section id="tabRecords" class="tab-panel">
+        <div class="panel-header">
+          <h2>실행 기록</h2>
+          <select id="recordPlanSelect" class="select"></select>
+        </div>
+        <div id="recordsList" class="card-list"></div>
+      </section>
+
+      <!-- 사진 / Vlog 일기 탭 (5번 이미지 형태) -->
+      <section id="tabVlog" class="tab-panel">
+        <div class="panel-header">
+          <h2>사진 · Vlog 일기</h2>
+          <button id="addVlogBtn" class="btn-primary btn-sm" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            새 포토·Vlog 일기
+          </button>
+        </div>
+        <div id="vlogList" class="vlog-list"></div>
+      </section>
+
+      <!-- 돌아보기 탭 -->
+      <section id="tabReview" class="tab-panel">
+        <div class="panel-header">
+          <h2>돌아보기</h2>
+          <select id="reviewPlanSelect" class="select"></select>
+        </div>
+        <div id="reviewDash" class="dash-grid"></div>
+        <div class="next-action-area" id="nextActionArea"></div>
+        <div id="drillDownArea" class="drilldown-box" hidden></div>
+      </section>
+
+      <!-- 다이어리 양면 좌하단 / 우하단 페이지 번호 -->
+      <div class="diary-book-folio" aria-hidden="true">
+        <span id="pageFolioLeft" class="folio-num folio-left">- 1 -</span>
+        <span id="pageFolioRight" class="folio-num folio-right">- 2 -</span>
+      </div>
+    </main>
+
+    <!-- 토스트 -->
+    <div id="globalToast" class="toast" role="alert" aria-live="polite"></div>
+
+    <!-- 모달 -->
+    <div id="modal" class="modal-overlay" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modalTitle">제목</h3>
+          <button id="modalClose" class="modal-x" type="button" aria-label="닫기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/plans.js"></script>
+  <script src="js/todos.js"></script>
+  <script src="js/records.js"></script>
+  <script src="js/review.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

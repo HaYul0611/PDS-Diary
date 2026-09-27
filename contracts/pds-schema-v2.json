@@ -1,0 +1,91 @@
+{
+  "schema_version": "v2",
+  "database": "PostgreSQL (Supabase)",
+  "timezone": "모든 TIMESTAMPTZ는 UTC 저장, 화면 표시는 Asia/Seoul",
+  "tables": {
+    "plans": {
+      "description": "계획",
+      "columns": {
+        "id": "UUID PK (자동 생성)",
+        "title": "TEXT NOT NULL — 계획 제목",
+        "start_date": "DATE NOT NULL — 시작일",
+        "end_date": "DATE NOT NULL — 종료일",
+        "priority": "TEXT — '높음'|'보통'|'낮음'",
+        "success_criteria": "TEXT NOT NULL — 성공 기준",
+        "estimated_hours": "NUMERIC(6,1) — 예상 시간 (시간 단위)",
+        "status": "TEXT — '진행중'|'완료'|'보류'",
+        "next_action": "TEXT — 돌아보기에서 정한 다음 계획",
+        "created_at": "TIMESTAMPTZ — 생성 시각",
+        "updated_at": "TIMESTAMPTZ — 수정 시각 (트리거 자동 갱신)"
+      }
+    },
+    "plan_history": {
+      "description": "계획 수정 이력 (고치기 전 내용 보존)",
+      "columns": {
+        "id": "UUID PK",
+        "plan_id": "UUID FK → plans.id ON DELETE CASCADE",
+        "title": "TEXT — 수정 전 제목",
+        "start_date": "DATE — 수정 전 시작일",
+        "end_date": "DATE — 수정 전 종료일",
+        "priority": "TEXT — 수정 전 우선순위",
+        "success_criteria": "TEXT — 수정 전 성공 기준",
+        "estimated_hours": "NUMERIC(6,1) — 수정 전 예상 시간",
+        "changed_at": "TIMESTAMPTZ — 수정 시각",
+        "change_reason": "TEXT — 수정 이유"
+      }
+    },
+    "todos": {
+      "description": "할 일",
+      "columns": {
+        "id": "UUID PK",
+        "plan_id": "UUID FK → plans.id ON DELETE CASCADE",
+        "title": "TEXT NOT NULL — 할 일 내용",
+        "status": "TEXT — '진행중'|'완료'",
+        "due_date": "DATE — 마감일",
+        "priority": "TEXT — '높음'|'보통'|'낮음'",
+        "tag": "TEXT — 태그",
+        "estimated_hours": "NUMERIC(6,1) — 예상 시간",
+        "completed_at": "TIMESTAMPTZ — 완료 시각",
+        "idempotency_key": "TEXT UNIQUE — 중복 완료 방지 키",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ"
+      }
+    },
+    "records": {
+      "description": "실행 기록",
+      "columns": {
+        "id": "UUID PK",
+        "todo_id": "UUID FK → todos.id ON DELETE CASCADE",
+        "started_at": "TIMESTAMPTZ NOT NULL — 시작 시각",
+        "ended_at": "TIMESTAMPTZ NOT NULL — 끝난 시각",
+        "actual_hours": "NUMERIC(6,1) NOT NULL — 실제 걸린 시간 (시간 단위)",
+        "blocker": "TEXT — 막혔던 이유",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "vlog_entries": {
+      "description": "사진·Vlog 감성 다이어리 (다중 사진/영상 캐러셀 & 손글씨 일기)",
+      "columns": {
+        "id": "UUID PK",
+        "title": "TEXT NOT NULL — 일기 제목 (한 줄 문구)",
+        "date": "DATE NOT NULL — 기록 날짜",
+        "day_of_week": "TEXT NOT NULL — 요일 스탬프 (mon~sun)",
+        "photos": "JSONB NOT NULL — 업로드된 사진/동영상 공개 URL 배열",
+        "content": "TEXT NOT NULL — 손글씨 일기 본문",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ"
+      }
+    }
+  },
+  "storage": {
+    "bucket": "vlog-media",
+    "public": true,
+    "description": "다이어리 사진 및 동영상 파일 업로드 전용 스토리지"
+  },
+  "relationships": [
+    "plans 1:N plan_history (plan_id)",
+    "plans 1:N todos (plan_id)",
+    "todos 1:N records (todo_id)"
+  ],
+  "rls": "현재 anon 전체 접근 허용 (과제 7에서 인증 추가 예정)"
+}
