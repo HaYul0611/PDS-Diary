@@ -349,37 +349,33 @@ body {
   left: 50%;
   width: 50%;
   transform-origin: left center;
-  /* ★ 책 가운데 제본선 중심 ★ */
-  animation: realisticFlipForward 0.65s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+  /* ★ 책 가운데 제본선 중심 곡선 넘김 ★ */
+  animation: realisticFlipForward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
 }
 
 @keyframes realisticFlipForward {
   0% {
-    transform: perspective(2600px) rotateY(0deg) rotateZ(0deg);
+    transform: perspective(2800px) rotateY(0deg) rotateZ(0deg) translateY(0) skewY(0deg);
     filter: brightness(1);
     box-shadow: -2px 0 10px rgba(40, 30, 20, 0.05);
   }
-
-  25% {
-    transform: perspective(2600px) rotateY(-42deg) rotateZ(-0.8deg);
-    filter: brightness(0.98);
-    box-shadow: -15px 0 32px rgba(40, 30, 20, 0.2);
+  22% {
+    transform: perspective(2800px) rotateY(-36deg) rotateZ(-3deg) translateY(-10px) skewY(-2.5deg);
+    filter: brightness(0.99);
+    box-shadow: -16px 10px 35px rgba(40, 30, 20, 0.24);
   }
-
   50% {
-    transform: perspective(2600px) rotateY(-90deg) rotateZ(-1.2deg);
-    filter: brightness(0.91);
-    box-shadow: -30px 0 52px rgba(40, 30, 20, 0.32);
+    transform: perspective(2800px) rotateY(-90deg) rotateZ(-5.5deg) translateY(-16px) skewY(-4deg) scale(0.985);
+    filter: brightness(0.92);
+    box-shadow: -32px 18px 55px rgba(40, 30, 20, 0.36);
   }
-
   75% {
-    transform: perspective(2600px) rotateY(-138deg) rotateZ(-0.6deg);
+    transform: perspective(2800px) rotateY(-144deg) rotateZ(-2.8deg) translateY(-8px) skewY(2deg);
     filter: brightness(0.97);
-    box-shadow: 20px 0 36px rgba(40, 30, 20, 0.22);
+    box-shadow: 22px 12px 38px rgba(40, 30, 20, 0.25);
   }
-
   100% {
-    transform: perspective(2600px) rotateY(-180deg) rotateZ(0deg);
+    transform: perspective(2800px) rotateY(-180deg) rotateZ(0deg) translateY(0) skewY(0deg);
     filter: brightness(1);
     box-shadow: 2px 0 10px rgba(40, 30, 20, 0.05);
   }
@@ -390,39 +386,213 @@ body {
   left: 0;
   width: 50%;
   transform-origin: right center;
-  /* ★ 책 가운데 제본선 중심 ★ */
-  animation: realisticFlipBackward 0.65s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+  /* ★ 책 가운데 제본선 중심 곡선 넘김 ★ */
+  animation: realisticFlipBackward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
 }
 
 @keyframes realisticFlipBackward {
   0% {
-    transform: perspective(2600px) rotateY(0deg) rotateZ(0deg);
+    transform: perspective(2800px) rotateY(0deg) rotateZ(0deg) translateY(0) skewY(0deg);
     filter: brightness(1);
     box-shadow: 2px 0 10px rgba(40, 30, 20, 0.05);
   }
-
-  25% {
-    transform: perspective(2600px) rotateY(42deg) rotateZ(0.8deg);
-    filter: brightness(0.98);
-    box-shadow: 15px 0 32px rgba(40, 30, 20, 0.2);
+  22% {
+    transform: perspective(2800px) rotateY(36deg) rotateZ(3deg) translateY(-10px) skewY(2.5deg);
+    filter: brightness(0.99);
+    box-shadow: 16px 10px 35px rgba(40, 30, 20, 0.24);
   }
-
   50% {
-    transform: perspective(2600px) rotateY(90deg) rotateZ(1.2deg);
-    filter: brightness(0.91);
-    box-shadow: 30px 0 52px rgba(40, 30, 20, 0.32);
+    transform: perspective(2800px) rotateY(90deg) rotateZ(5.5deg) translateY(-16px) skewY(4deg) scale(0.985);
+    filter: brightness(0.92);
+    box-shadow: 32px 18px 55px rgba(40, 30, 20, 0.36);
   }
-
   75% {
-    transform: perspective(2600px) rotateY(138deg) rotateZ(0.6deg);
+    transform: perspective(2800px) rotateY(144deg) rotateZ(2.8deg) translateY(-8px) skewY(-2deg);
     filter: brightness(0.97);
-    box-shadow: -20px 0 36px rgba(40, 30, 20, 0.22);
+    box-shadow: -22px 12px 38px rgba(40, 30, 20, 0.25);
   }
-
   100% {
-    transform: perspective(2600px) rotateY(180deg) rotateZ(0deg);
+    transform: perspective(2800px) rotateY(180deg) rotateZ(0deg) translateY(0) skewY(0deg);
     filter: brightness(1);
     box-shadow: -2px 0 10px rgba(40, 30, 20, 0.05);
+  }
+}
+
+/* ★ 첨부 이미지의 모서리 입체 말림 (Curled Corner Peel) ★ */
+.page-curl-corner-peel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  background: linear-gradient(135deg, 
+    #ffffff 0%, 
+    #f8f5ee 32%, 
+    #ded6c8 65%, 
+    #9e9282 100%
+  );
+  box-shadow: -10px 10px 22px rgba(45, 30, 15, 0.4);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  transform-origin: top right;
+  pointer-events: none;
+  z-index: 25;
+  opacity: 0;
+}
+
+.page-curl-corner-peel.back {
+  right: auto;
+  left: 0;
+  transform-origin: top left;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  box-shadow: 10px 10px 22px rgba(45, 30, 15, 0.4);
+}
+
+.flipping-page.flip-forward .page-curl-corner-peel:not(.back) {
+  animation: cornerCurlPeelForward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+}
+
+.flipping-page.flip-backward .page-curl-corner-peel.back {
+  animation: cornerCurlPeelBackward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+}
+
+@keyframes cornerCurlPeelForward {
+  0% {
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  25% {
+    width: 125px;
+    height: 125px;
+    opacity: 1;
+    transform: rotate(-6deg);
+    box-shadow: -12px 12px 24px rgba(45, 30, 15, 0.38);
+  }
+  50% {
+    width: 165px;
+    height: 165px;
+    opacity: 0.95;
+    transform: rotate(-10deg);
+    box-shadow: -16px 16px 32px rgba(45, 30, 15, 0.42);
+  }
+  80% {
+    width: 80px;
+    height: 80px;
+    opacity: 0.6;
+    transform: rotate(-4deg);
+  }
+  100% {
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes cornerCurlPeelBackward {
+  0% {
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  25% {
+    width: 125px;
+    height: 125px;
+    opacity: 1;
+    transform: rotate(6deg);
+    box-shadow: 12px 12px 24px rgba(45, 30, 15, 0.38);
+  }
+  50% {
+    width: 165px;
+    height: 165px;
+    opacity: 0.95;
+    transform: rotate(10deg);
+    box-shadow: 16px 16px 32px rgba(45, 30, 15, 0.42);
+  }
+  80% {
+    width: 80px;
+    height: 80px;
+    opacity: 0.6;
+    transform: rotate(4deg);
+  }
+  100% {
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+}
+
+/* 입체 곡면 음영 그라데이션 */
+.page-cylinder-shading {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+}
+
+.flipping-page.flip-forward .page-cylinder-shading:not(.back) {
+  animation: cylinderShadingForward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+}
+
+.flipping-page.flip-backward .page-cylinder-shading.back {
+  animation: cylinderShadingBackward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+}
+
+@keyframes cylinderShadingForward {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+    background: linear-gradient(to right, 
+      rgba(40, 25, 10, 0.05) 0%, 
+      rgba(255, 255, 255, 0.35) 25%, 
+      rgba(40, 25, 10, 0.2) 70%, 
+      rgba(20, 10, 5, 0.38) 100%
+    );
+  }
+  65% {
+    opacity: 0.8;
+    background: linear-gradient(to left, 
+      rgba(40, 25, 10, 0.05) 0%, 
+      rgba(255, 255, 255, 0.35) 25%, 
+      rgba(40, 25, 10, 0.2) 70%, 
+      rgba(20, 10, 5, 0.38) 100%
+    );
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes cylinderShadingBackward {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+    background: linear-gradient(to left, 
+      rgba(40, 25, 10, 0.05) 0%, 
+      rgba(255, 255, 255, 0.35) 25%, 
+      rgba(40, 25, 10, 0.2) 70%, 
+      rgba(20, 10, 5, 0.38) 100%
+    );
+  }
+  65% {
+    opacity: 0.8;
+    background: linear-gradient(to right, 
+      rgba(40, 25, 10, 0.05) 0%, 
+      rgba(255, 255, 255, 0.35) 25%, 
+      rgba(40, 25, 10, 0.2) 70%, 
+      rgba(20, 10, 5, 0.38) 100%
+    );
+  }
+  100% {
+    opacity: 0;
   }
 }
 

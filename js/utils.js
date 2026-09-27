@@ -28,7 +28,16 @@ var U = {
   formatDateTime: function (iso) {
     if (!iso) return '-';
     var d = new Date(iso);
-    return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleString('ko-KR', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
   },
 
   formatDateInput: function (iso) {

@@ -116,14 +116,18 @@
 
     <!-- 탭 콘텐츠 (실제 다이어리 북 속지) -->
     <main class="content">
-      <!-- 실제 다이어리 가운데 중심 3D 책장 넘김 레이어 (앞장/뒷장 실시간 복제 렌더링) -->
+      <!-- 실제 다이어리 가운데 중심 3D 책장 넘김 및 페이지 컬(Page Curl) 레이어 -->
       <div id="pageFlipLayer" class="page-flip-layer" hidden aria-hidden="true">
         <div id="flippingPage" class="flipping-page">
           <div class="page-face page-front">
             <div class="page-clone-inner"></div>
+            <div class="page-cylinder-shading"></div>
+            <div class="page-curl-corner-peel"></div>
           </div>
           <div class="page-face page-back">
             <div class="page-clone-inner"></div>
+            <div class="page-cylinder-shading back"></div>
+            <div class="page-curl-corner-peel back"></div>
           </div>
         </div>
       </div>
@@ -179,14 +183,16 @@
         </div>
         <!-- 4번 이미지 하단 다이어리 캐릭터 스티커 데코 -->
         <div class="diary-sticker-footer">
-            <div class="cat-face-doodle">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;">
-                <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58 1.4 3.82-.25 5.56.54 1.25.83 2.63.83 4.44 0 5-4.03 9-9 9s-9-4-9-9c0-1.81.29-3.19.83-4.44C1.57 6.82 1.57 3.58 2.97 3c1.39-.58 4.64.26 6.42 2.26.65-.17 1.33-.26 2-.26z" />
-                <circle cx="9" cy="13" r="1" fill="currentColor" />
-                <circle cx="15" cy="13" r="1" fill="currentColor" />
-                <path d="M10 16.5c1 .5 3 .5 4 0" />
-              </svg>tong
-            </div>
+          <div class="cat-face-doodle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;">
+              <path
+                d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58 1.4 3.82-.25 5.56.54 1.25.83 2.63.83 4.44 0 5-4.03 9-9 9s-9-4-9-9c0-1.81.29-3.19.83-4.44C1.57 6.82 1.57 3.58 2.97 3c1.39-.58 4.64.26 6.42 2.26.65-.17 1.33-.26 2-.26z" />
+              <circle cx="9" cy="13" r="1" fill="currentColor" />
+              <circle cx="15" cy="13" r="1" fill="currentColor" />
+              <path d="M10 16.5c1 .5 3 .5 4 0" />
+            </svg>tong
+          </div>
         </div>
       </section>
 
