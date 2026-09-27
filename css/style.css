@@ -285,7 +285,7 @@ body {
   perspective-origin: 50% 50%;
 }
 
-/* ★ 다이어리 정중앙 책등 제본선 & 바인더 스티칭 (상단부터 하단까지 잘림 없이 은은하게 연결) ★ */
+/* ★ 다이어리 정중앙 책등 제본선 & 바인더 스티칭 (상단부터 하단까지 잘림 없이 온전히 유지) ★ */
 .book-spine-line {
   position: absolute;
   top: 0;
@@ -297,12 +297,12 @@ body {
       transparent 0%,
       rgba(60, 45, 30, 0.012) 30%,
       rgba(40, 25, 10, 0.035) 48%,
-      rgba(30, 18, 8, 0.065) 50%,
+      rgba(30, 18, 8, 0.075) 50%,
       rgba(40, 25, 10, 0.035) 52%,
       rgba(60, 45, 30, 0.012) 70%,
       transparent 100%);
   pointer-events: none;
-  z-index: 85;
+  z-index: 300; /* ★ 페이지가 넘어가도 중앙 제본선이 끊어지거나 가려지지 않도록 최상위 고정 ★ */
 }
 
 /* 아주 은은하고 부드러운 스티칭 점선 (시선 집중 방지) */
@@ -315,13 +315,13 @@ body {
   width: 1px;
   transform: translateX(-50%);
   background-image: repeating-linear-gradient(to bottom,
-      rgba(100, 75, 50, 0.14) 0,
-      rgba(100, 75, 50, 0.14) 4px,
+      rgba(100, 75, 50, 0.16) 0,
+      rgba(100, 75, 50, 0.16) 4px,
       transparent 4px,
       transparent 18px);
 }
 
-/* ★ 실제 다이어리 가운데 중심 3D 책장 넘김 레이어 ★ */
+/* ★ 실제 다이어리 가운데 중심 3D 책장 넘김 및 페이퍼 컬(Page Curl) 레이어 ★ */
 .page-flip-layer {
   position: absolute;
   top: 0;
@@ -330,52 +330,55 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 150;
-  perspective: 2500px;
+  perspective: 2800px;
   perspective-origin: 50% 50%;
   overflow: hidden;
   border-radius: 0 0 20px 20px;
 }
 
+/* 유연하게 아치형으로 휘어지며 넘어가는 본체 종이 시트 */
 .flipping-page {
   position: absolute;
   top: 0;
   height: 100%;
   transform-style: preserve-3d;
-  will-change: transform, box-shadow;
+  will-change: transform, filter, box-shadow;
 }
 
 /* 오른쪽 페이지가 가운데 제본선을 축으로 왼쪽으로 넘어갈 때 (앞으로 넘김) */
 .flipping-page.flip-forward {
   left: 50%;
   width: 50%;
-  transform-origin: left center;
-  /* ★ 책 가운데 제본선 중심 곡선 넘김 ★ */
-  animation: realisticFlipForward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+  transform-origin: left bottom;
+  animation: pageCurlTurnForward 0.54s cubic-bezier(0.25, 1, 0.45, 1) forwards;
 }
 
-@keyframes realisticFlipForward {
+@keyframes pageCurlTurnForward {
   0% {
-    transform: perspective(2800px) rotateY(0deg) rotateZ(0deg) translateY(0) skewY(0deg);
+    transform: perspective(2800px) rotateY(0deg) rotateZ(0deg) translateY(0) scaleX(1);
     filter: brightness(1);
     box-shadow: -2px 0 10px rgba(40, 30, 20, 0.05);
   }
-  22% {
-    transform: perspective(2800px) rotateY(-36deg) rotateZ(-3deg) translateY(-10px) skewY(-2.5deg);
-    filter: brightness(0.99);
-    box-shadow: -16px 10px 35px rgba(40, 30, 20, 0.24);
+  24% {
+    /* 모서리가 들리며 종이가 3D 아치로 유연하게 휘어짐 */
+    transform: perspective(2800px) rotateY(-34deg) rotateZ(-8deg) translateY(-14px) scaleX(0.92);
+    filter: brightness(0.98);
+    box-shadow: -18px 14px 38px rgba(40, 30, 20, 0.22);
   }
   50% {
-    transform: perspective(2800px) rotateY(-90deg) rotateZ(-5.5deg) translateY(-16px) skewY(-4deg) scale(0.985);
-    filter: brightness(0.92);
-    box-shadow: -32px 18px 55px rgba(40, 30, 20, 0.36);
+    /* 중앙 제본선 부근에서 최대 입체 아치 형성 (납작한 문짝 회전이 아닌 입체 곡면 수축) */
+    transform: perspective(2800px) rotateY(-88deg) rotateZ(-13deg) translateY(-24px) scaleX(0.82);
+    filter: brightness(0.91);
+    box-shadow: -32px 20px 56px rgba(40, 30, 20, 0.32);
   }
-  75% {
-    transform: perspective(2800px) rotateY(-144deg) rotateZ(-2.8deg) translateY(-8px) skewY(2deg);
-    filter: brightness(0.97);
-    box-shadow: 22px 12px 38px rgba(40, 30, 20, 0.25);
+  76% {
+    /* 왼쪽 페이지 위로 내려앉으며 곡선이 서서히 펴짐 */
+    transform: perspective(2800px) rotateY(-144deg) rotateZ(-6deg) translateY(-10px) scaleX(0.92);
+    filter: brightness(0.98);
+    box-shadow: 20px 12px 36px rgba(40, 30, 20, 0.22);
   }
   100% {
-    transform: perspective(2800px) rotateY(-180deg) rotateZ(0deg) translateY(0) skewY(0deg);
+    transform: perspective(2800px) rotateY(-180deg) rotateZ(0deg) translateY(0) scaleX(1);
     filter: brightness(1);
     box-shadow: 2px 0 10px rgba(40, 30, 20, 0.05);
   }
@@ -385,143 +388,178 @@ body {
 .flipping-page.flip-backward {
   left: 0;
   width: 50%;
-  transform-origin: right center;
-  /* ★ 책 가운데 제본선 중심 곡선 넘김 ★ */
-  animation: realisticFlipBackward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+  transform-origin: right bottom;
+  animation: pageCurlTurnBackward 0.54s cubic-bezier(0.25, 1, 0.45, 1) forwards;
 }
 
-@keyframes realisticFlipBackward {
+@keyframes pageCurlTurnBackward {
   0% {
-    transform: perspective(2800px) rotateY(0deg) rotateZ(0deg) translateY(0) skewY(0deg);
+    transform: perspective(2800px) rotateY(0deg) rotateZ(0deg) translateY(0) scaleX(1);
     filter: brightness(1);
     box-shadow: 2px 0 10px rgba(40, 30, 20, 0.05);
   }
-  22% {
-    transform: perspective(2800px) rotateY(36deg) rotateZ(3deg) translateY(-10px) skewY(2.5deg);
-    filter: brightness(0.99);
-    box-shadow: 16px 10px 35px rgba(40, 30, 20, 0.24);
+  24% {
+    transform: perspective(2800px) rotateY(34deg) rotateZ(8deg) translateY(-14px) scaleX(0.92);
+    filter: brightness(0.98);
+    box-shadow: 18px 14px 38px rgba(40, 30, 20, 0.22);
   }
   50% {
-    transform: perspective(2800px) rotateY(90deg) rotateZ(5.5deg) translateY(-16px) skewY(4deg) scale(0.985);
-    filter: brightness(0.92);
-    box-shadow: 32px 18px 55px rgba(40, 30, 20, 0.36);
+    transform: perspective(2800px) rotateY(88deg) rotateZ(13deg) translateY(-24px) scaleX(0.82);
+    filter: brightness(0.91);
+    box-shadow: 32px 20px 56px rgba(40, 30, 20, 0.32);
   }
-  75% {
-    transform: perspective(2800px) rotateY(144deg) rotateZ(2.8deg) translateY(-8px) skewY(-2deg);
-    filter: brightness(0.97);
-    box-shadow: -22px 12px 38px rgba(40, 30, 20, 0.25);
+  76% {
+    transform: perspective(2800px) rotateY(144deg) rotateZ(6deg) translateY(-10px) scaleX(0.92);
+    filter: brightness(0.98);
+    box-shadow: -20px 12px 36px rgba(40, 30, 20, 0.22);
   }
   100% {
-    transform: perspective(2800px) rotateY(180deg) rotateZ(0deg) translateY(0) skewY(0deg);
+    transform: perspective(2800px) rotateY(180deg) rotateZ(0deg) translateY(0) scaleX(1);
     filter: brightness(1);
     box-shadow: -2px 0 10px rgba(40, 30, 20, 0.05);
   }
 }
 
-/* ★ 첨부 이미지의 모서리 입체 말림 (Curled Corner Peel) ★ */
-.page-curl-corner-peel {
+/* ★ 첨부 이미지 1:1 완벽 구현: 대형 입체 모서리 말림 롤 (Curled Corner Cone) ★ */
+.page-curl-cone {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  background: linear-gradient(135deg, 
-    #ffffff 0%, 
-    #f8f5ee 32%, 
-    #ded6c8 65%, 
-    #9e9282 100%
-  );
-  box-shadow: -10px 10px 22px rgba(45, 30, 15, 0.4);
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-  transform-origin: top right;
+  width: 480px;
+  height: 480px;
+  max-width: 58%;
+  max-height: 85%;
   pointer-events: none;
-  z-index: 25;
-  opacity: 0;
+  z-index: 180;
+  will-change: transform, opacity;
 }
 
-.page-curl-corner-peel.back {
-  right: auto;
+.page-curl-cone.forward {
+  bottom: 0;
+  right: 0;
+  transform-origin: bottom right;
+  animation: curlConeRollForward 0.54s cubic-bezier(0.25, 1, 0.45, 1) forwards;
+}
+
+.page-curl-cone.backward {
+  bottom: 0;
   left: 0;
-  transform-origin: top left;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-  box-shadow: 10px 10px 22px rgba(45, 30, 15, 0.4);
+  transform-origin: bottom left;
+  animation: curlConeRollBackward 0.54s cubic-bezier(0.25, 1, 0.45, 1) forwards;
 }
 
-.flipping-page.flip-forward .page-curl-corner-peel:not(.back) {
-  animation: cornerCurlPeelForward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+/* 말려 올라간 종이가 밑장에 드리우는 실제 곡면 그림자 (첨부 이미지의 부드러운 드롭 섀도우) */
+.curl-cone-shadow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 80% 0 0 0;
+  background: radial-gradient(ellipse at 85% 85%, rgba(35, 20, 10, 0.42) 0%, rgba(35, 20, 10, 0.22) 40%, rgba(35, 20, 10, 0.08) 60%, transparent 75%);
+  filter: blur(14px);
+  transform: translate(-18px, 14px);
+  pointer-events: none;
 }
 
-.flipping-page.flip-backward .page-curl-corner-peel.back {
-  animation: cornerCurlPeelBackward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+.page-curl-cone.backward .curl-cone-shadow {
+  border-radius: 0 80% 0 0;
+  background: radial-gradient(ellipse at 15% 85%, rgba(35, 20, 10, 0.42) 0%, rgba(35, 20, 10, 0.22) 40%, rgba(35, 20, 10, 0.08) 60%, transparent 75%);
+  transform: translate(18px, 14px);
 }
 
-@keyframes cornerCurlPeelForward {
+/* 말려 올라간 종이 뒷면 (원통형 곡선 볼륨 & 아이보리 그라데이션) */
+.curl-cone-paper {
+  position: absolute;
+  inset: 0;
+  border-radius: 80% 0 0 0;
+  background: linear-gradient(135deg,
+    #ffffff 0%,
+    #faf7f0 20%,
+    #ebe2d2 45%,
+    #d8ccb8 70%,
+    #b2a188 100%
+  );
+  box-shadow: -12px 12px 28px rgba(45, 30, 15, 0.35);
+  overflow: hidden;
+}
+
+.page-curl-cone.backward .curl-cone-paper {
+  border-radius: 0 80% 0 0;
+  background: linear-gradient(225deg,
+    #ffffff 0%,
+    #faf7f0 20%,
+    #ebe2d2 45%,
+    #d8ccb8 70%,
+    #b2a188 100%
+  );
+  box-shadow: 12px 12px 28px rgba(45, 30, 15, 0.35);
+}
+
+/* 종이 롤링 원통형 능선 하이라이트 (첨부 이미지의 둥근 모서리 빛 반사) */
+.curl-cone-highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.6) 18%,
+    rgba(255, 255, 255, 0.1) 35%,
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.page-curl-cone.backward .curl-cone-highlight {
+  background: linear-gradient(225deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.6) 18%,
+    rgba(255, 255, 255, 0.1) 35%,
+    transparent 55%
+  );
+}
+
+@keyframes curlConeRollForward {
   0% {
-    width: 0px;
-    height: 0px;
+    transform: translate(85%, 85%) scale(0.2) rotate(0deg);
     opacity: 0;
-    transform: rotate(0deg);
   }
-  25% {
-    width: 125px;
-    height: 125px;
+  20% {
+    /* 첨부 이미지 상태: 모서리가 탐스럽게 말려 올라옴 */
+    transform: translate(32%, 32%) scale(0.85) rotate(-6deg);
     opacity: 1;
-    transform: rotate(-6deg);
-    box-shadow: -12px 12px 24px rgba(45, 30, 15, 0.38);
   }
-  50% {
-    width: 165px;
-    height: 165px;
+  48% {
+    /* 페이지 안쪽으로 원통형으로 굴러가며 확장 */
+    transform: translate(-12%, 6%) scale(1.22) rotate(-14deg);
     opacity: 0.95;
-    transform: rotate(-10deg);
-    box-shadow: -16px 16px 32px rgba(45, 30, 15, 0.42);
   }
-  80% {
-    width: 80px;
-    height: 80px;
-    opacity: 0.6;
-    transform: rotate(-4deg);
+  75% {
+    /* 제본선을 넘어 반대편으로 넘어가며 부드럽게 펼쳐짐 */
+    transform: translate(-55%, -15%) scale(1.38) rotate(-22deg);
+    opacity: 0.65;
   }
   100% {
-    width: 0px;
-    height: 0px;
+    transform: translate(-95%, -35%) scale(1.5) rotate(-28deg);
     opacity: 0;
-    transform: rotate(0deg);
   }
 }
 
-@keyframes cornerCurlPeelBackward {
+@keyframes curlConeRollBackward {
   0% {
-    width: 0px;
-    height: 0px;
+    transform: translate(-85%, 85%) scale(0.2) rotate(0deg);
     opacity: 0;
-    transform: rotate(0deg);
   }
-  25% {
-    width: 125px;
-    height: 125px;
+  20% {
+    transform: translate(-32%, 32%) scale(0.85) rotate(6deg);
     opacity: 1;
-    transform: rotate(6deg);
-    box-shadow: 12px 12px 24px rgba(45, 30, 15, 0.38);
   }
-  50% {
-    width: 165px;
-    height: 165px;
+  48% {
+    transform: translate(12%, 6%) scale(1.22) rotate(14deg);
     opacity: 0.95;
-    transform: rotate(10deg);
-    box-shadow: 16px 16px 32px rgba(45, 30, 15, 0.42);
   }
-  80% {
-    width: 80px;
-    height: 80px;
-    opacity: 0.6;
-    transform: rotate(4deg);
+  75% {
+    transform: translate(55%, -15%) scale(1.38) rotate(22deg);
+    opacity: 0.65;
   }
   100% {
-    width: 0px;
-    height: 0px;
+    transform: translate(95%, -35%) scale(1.5) rotate(28deg);
     opacity: 0;
-    transform: rotate(0deg);
   }
 }
 
@@ -535,65 +573,57 @@ body {
 }
 
 .flipping-page.flip-forward .page-cylinder-shading:not(.back) {
-  animation: cylinderShadingForward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+  animation: cylinderShadingForward 0.54s cubic-bezier(0.25, 1, 0.45, 1) forwards;
 }
 
 .flipping-page.flip-backward .page-cylinder-shading.back {
-  animation: cylinderShadingBackward 0.68s cubic-bezier(0.38, 0.04, 0.22, 1) forwards;
+  animation: cylinderShadingBackward 0.54s cubic-bezier(0.25, 1, 0.45, 1) forwards;
 }
 
 @keyframes cylinderShadingForward {
-  0% {
-    opacity: 0;
-  }
+  0% { opacity: 0; }
   30% {
-    opacity: 0.8;
+    opacity: 0.75;
     background: linear-gradient(to right, 
       rgba(40, 25, 10, 0.05) 0%, 
       rgba(255, 255, 255, 0.35) 25%, 
-      rgba(40, 25, 10, 0.2) 70%, 
-      rgba(20, 10, 5, 0.38) 100%
+      rgba(40, 25, 10, 0.18) 70%, 
+      rgba(20, 10, 5, 0.35) 100%
     );
   }
   65% {
-    opacity: 0.8;
+    opacity: 0.75;
     background: linear-gradient(to left, 
       rgba(40, 25, 10, 0.05) 0%, 
       rgba(255, 255, 255, 0.35) 25%, 
-      rgba(40, 25, 10, 0.2) 70%, 
-      rgba(20, 10, 5, 0.38) 100%
+      rgba(40, 25, 10, 0.18) 70%, 
+      rgba(20, 10, 5, 0.35) 100%
     );
   }
-  100% {
-    opacity: 0;
-  }
+  100% { opacity: 0; }
 }
 
 @keyframes cylinderShadingBackward {
-  0% {
-    opacity: 0;
-  }
+  0% { opacity: 0; }
   30% {
-    opacity: 0.8;
+    opacity: 0.75;
     background: linear-gradient(to left, 
       rgba(40, 25, 10, 0.05) 0%, 
       rgba(255, 255, 255, 0.35) 25%, 
-      rgba(40, 25, 10, 0.2) 70%, 
-      rgba(20, 10, 5, 0.38) 100%
+      rgba(40, 25, 10, 0.18) 70%, 
+      rgba(20, 10, 5, 0.35) 100%
     );
   }
   65% {
-    opacity: 0.8;
+    opacity: 0.75;
     background: linear-gradient(to right, 
       rgba(40, 25, 10, 0.05) 0%, 
       rgba(255, 255, 255, 0.35) 25%, 
-      rgba(40, 25, 10, 0.2) 70%, 
-      rgba(20, 10, 5, 0.38) 100%
+      rgba(40, 25, 10, 0.18) 70%, 
+      rgba(20, 10, 5, 0.35) 100%
     );
   }
-  100% {
-    opacity: 0;
-  }
+  100% { opacity: 0; }
 }
 
 .page-face {
@@ -605,29 +635,16 @@ body {
   border-radius: 4px;
 }
 
-/* 넘겨지는 책장 표면에 실제 앞장/뒷장 콘텐츠가 보이도록 하는 복제 뷰 */
-.page-clone-inner {
+/* 넘겨지는 책장의 고급 모눈종이 표면 질감 (DOM 복제 지연 제거로 60fps 무결점 보장) */
+.page-paper-surface {
   position: absolute;
-  top: 0;
-  width: 200%;
-  height: 100%;
-  padding: 28px 40px;
-  pointer-events: none;
+  inset: 0;
   background-color: var(--paper);
   background-image:
-    linear-gradient(to right, rgba(160, 140, 120, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(160, 140, 120, 0.08) 1px, transparent 1px);
+    linear-gradient(to right, rgba(160, 140, 120, 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(160, 140, 120, 0.09) 1px, transparent 1px);
   background-size: 22px 22px;
-  overflow: hidden;
-  user-select: none;
-}
-
-.page-clone-inner.show-right {
-  left: -100%;
-}
-
-.page-clone-inner.show-left {
-  left: 0;
+  pointer-events: none;
 }
 
 .page-front {

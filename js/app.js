@@ -47,34 +47,29 @@
     review: ['- 11 -', '- 12 -']
   };
 
-  function triggerPageFlip(isForward, oldPanel, newPanel) {
+  function triggerPageFlip(isForward) {
     var layer = document.getElementById('pageFlipLayer');
     var page = document.getElementById('flippingPage');
+    var cone = document.getElementById('pageCurlCone');
     if (!layer || !page) return;
 
     if (pageFlipTimer) clearTimeout(pageFlipTimer);
 
-    var frontInner = page.querySelector('.page-front .page-clone-inner');
-    var backInner = page.querySelector('.page-back .page-clone-inner');
-
-    // 앞장 & 뒷장: DOM ID 중복 충돌을 원천 차단하기 위해 id 속성을 제거하여 복제
-    if (frontInner && oldPanel) {
-      frontInner.innerHTML = oldPanel.innerHTML.replace(/\s+id="[^"]*"/g, '');
-      frontInner.className = 'page-clone-inner ' + (isForward ? 'show-right' : 'show-left');
-    }
-
-    if (backInner && newPanel) {
-      backInner.innerHTML = newPanel.innerHTML.replace(/\s+id="[^"]*"/g, '');
-      backInner.className = 'page-clone-inner ' + (isForward ? 'show-left' : 'show-right');
-    }
-
+    // 3D 종이 본체 아치 넘김 클래스 설정
     page.className = 'flipping-page ' + (isForward ? 'flip-forward' : 'flip-backward');
+
+    // 첨부 이미지 기반 리얼 모서리 페이퍼 컬(Curled Corner Roll) 클래스 설정
+    if (cone) {
+      cone.className = 'page-curl-cone ' + (isForward ? 'forward' : 'backward');
+    }
+
     layer.hidden = false;
 
     pageFlipTimer = setTimeout(function () {
       layer.hidden = true;
       page.className = 'flipping-page';
-    }, 670);
+      if (cone) cone.className = 'page-curl-cone';
+    }, 540);
   }
 
   function switchTab(name) {
@@ -85,11 +80,8 @@
     var newIndex = TAB_ORDER.indexOf(name);
     var isForward = newIndex >= oldIndex;
 
-    var oldPanel = document.getElementById('tab' + capitalize(oldName));
-    var newPanel = document.getElementById('tab' + capitalize(name));
-
-    // 실제 앞장/뒷장 콘텐츠를 지닌 3D 책장 넘김 실행
-    triggerPageFlip(isForward, oldPanel, newPanel);
+    // 실제 양장본 감성의 부드러운 3D 페이퍼 컬(Page Curl) 책 넘김 애니메이션 즉시 가동
+    triggerPageFlip(isForward);
 
     currentTab = name;
     document.querySelectorAll('.tab').forEach(function (t) {
@@ -103,15 +95,16 @@
     if (lEl) lEl.textContent = folios[0];
     if (rEl) rEl.textContent = folios[1];
 
-    // 책장이 수직(90도)으로 펼쳐져 시야를 가리는 320ms 시점에 실제 패널 활성화 및 렌더링
+    // 새 패널은 책이 말려 넘어가는 밑장에 즉시 활성화되어 컬 뒤로 자연스럽게 노출
+    document.querySelectorAll('.tab-panel').forEach(function (p) {
+      var isActive = p.id === 'tab' + capitalize(name);
+      p.classList.toggle('active', isActive);
+    });
+
+    // GPU 애니메이션이 부드럽게 끝나는 시점에 데이터 로딩을 수행하여 60fps 무결점 보장
     setTimeout(function () {
-      document.querySelectorAll('.tab-panel').forEach(function (p) {
-        var isActive = p.id === 'tab' + capitalize(name);
-        p.classList.toggle('active', isActive);
-      });
-      // 활성화된 패널의 데이터 및 커스텀 셀렉트 안전 로드
       renderTabContent(name);
-    }, 320);
+    }, 420);
   }
 
   function renderTabContent(name) {

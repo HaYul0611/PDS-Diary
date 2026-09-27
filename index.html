@@ -116,18 +116,24 @@
 
     <!-- 탭 콘텐츠 (실제 다이어리 북 속지) -->
     <main class="content">
-      <!-- 실제 다이어리 가운데 중심 3D 책장 넘김 및 페이지 컬(Page Curl) 레이어 -->
+      <!-- 실제 양장본 다이어리 유기적 3D 책 넘김 및 첨부 이미지 기반 리얼 페이퍼 컬(Page Curl) 레이어 -->
       <div id="pageFlipLayer" class="page-flip-layer" hidden aria-hidden="true">
+        <!-- 1. 유연하게 아치형으로 휘어지며 넘어가는 본체 종이 시트 -->
         <div id="flippingPage" class="flipping-page">
           <div class="page-face page-front">
-            <div class="page-clone-inner"></div>
+            <div class="page-paper-surface"></div>
             <div class="page-cylinder-shading"></div>
-            <div class="page-curl-corner-peel"></div>
           </div>
           <div class="page-face page-back">
-            <div class="page-clone-inner"></div>
+            <div class="page-paper-surface"></div>
             <div class="page-cylinder-shading back"></div>
-            <div class="page-curl-corner-peel back"></div>
+          </div>
+        </div>
+        <!-- 2. 첨부 이미지와 동일한 대형 입체 모서리 말림 롤 (Curled Corner Cone) -->
+        <div id="pageCurlCone" class="page-curl-cone">
+          <div class="curl-cone-shadow"></div>
+          <div class="curl-cone-paper">
+            <div class="curl-cone-highlight"></div>
           </div>
         </div>
       </div>
