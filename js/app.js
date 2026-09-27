@@ -50,26 +50,18 @@
   function triggerPageFlip(isForward) {
     var layer = document.getElementById('pageFlipLayer');
     var page = document.getElementById('flippingPage');
-    var cone = document.getElementById('pageCurlCone');
     if (!layer || !page) return;
 
     if (pageFlipTimer) clearTimeout(pageFlipTimer);
 
     // 3D 종이 본체 아치 넘김 클래스 설정
     page.className = 'flipping-page ' + (isForward ? 'flip-forward' : 'flip-backward');
-
-    // 첨부 이미지 기반 리얼 모서리 페이퍼 컬(Curled Corner Roll) 클래스 설정
-    if (cone) {
-      cone.className = 'page-curl-cone ' + (isForward ? 'forward' : 'backward');
-    }
-
     layer.hidden = false;
 
     pageFlipTimer = setTimeout(function () {
       layer.hidden = true;
       page.className = 'flipping-page';
-      if (cone) cone.className = 'page-curl-cone';
-    }, 540);
+    }, 520);
   }
 
   function switchTab(name) {
