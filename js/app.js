@@ -17,6 +17,8 @@
   function init() {
     bindTabs();
     bindExport();
+    bindOfflineDetection();
+    bindThemeToggle();
     bindModal();
     bindEvents();
     bindCalendarControls();
@@ -168,6 +170,10 @@
           return;
         }
 
+        if (authMode === 'login' && checkLockout()) {
+          return;
+        }
+
         if (submitBtn) {
           submitBtn.disabled = true;
           submitBtn.style.opacity = '0.7';
@@ -177,8 +183,21 @@
           if (authMode === 'login') {
             var res = await Auth.signIn(email, pw);
             if (!res.success) {
-              showAuthError(res.message);
+              failedLoginAttempts++;
+              if (failedLoginAttempts >= 5) {
+                var until = Date.now() + 30000;
+                localStorage.setItem('pds_lockout_until', String(until));
+                startLockoutCountdown(30);
+              } else {
+                showAuthError(res.message + ' (연속 실패 ' + failedLoginAttempts + '/5회)');
+              }
             } else {
+              failedLoginAttempts = 0;
+              localStorage.removeItem('pds_lockout_until');
+              if (lockoutTimer) {
+                clearInterval(lockoutTimer);
+                lockoutTimer = null;
+              }
               if (errorBox) errorBox.hidden = true;
 
               // ★ [3D 북 오픈 애니메이션 시퀀스] ★
@@ -264,13 +283,60 @@
         } catch (err) {
           showAuthError('인증 처리 중 오류가 발생했습니다: ' + (err.message || err));
         } finally {
-          if (submitBtn) {
+          if (submitBtn && !checkLockout()) {
             submitBtn.disabled = false;
             submitBtn.style.opacity = '';
           }
         }
       };
     }
+
+    var failedLoginAttempts = 0;
+    var lockoutTimer = null;
+
+    function checkLockout() {
+      var lockoutUntil = parseInt(localStorage.getItem('pds_lockout_until') || '0', 10);
+      var now = Date.now();
+      if (lockoutUntil > now) {
+        var remainSec = Math.ceil((lockoutUntil - now) / 1000);
+        startLockoutCountdown(remainSec);
+        return true;
+      }
+      return false;
+    }
+
+    function startLockoutCountdown(sec) {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+      }
+      if (lockoutTimer) clearInterval(lockoutTimer);
+
+      function updateMsg(s) {
+        showAuthError('⚠️ 보안을 위해 로그인이 ' + s + '초간 일시 제한됩니다. 잠시 후 다시 시도해주세요.');
+      }
+
+      updateMsg(sec);
+      var current = sec;
+      lockoutTimer = setInterval(function () {
+        current--;
+        if (current <= 0) {
+          clearInterval(lockoutTimer);
+          lockoutTimer = null;
+          localStorage.removeItem('pds_lockout_until');
+          failedLoginAttempts = 0;
+          if (errorBox) errorBox.hidden = true;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '';
+          }
+        } else {
+          updateMsg(current);
+        }
+      }, 1000);
+    }
+
+    checkLockout();
 
     function showAuthError(msg) {
       if (errorBox) {
@@ -507,6 +573,62 @@
         if (ok) {
           U.toast('모든 데이터를 JSON으로 내보냈습니다.', 'success');
         }
+      });
+    }
+  }
+
+  /* ========== 오프라인 상태 감지 및 복구 안내 (고도화 요소 1) ========== */
+  function bindOfflineDetection() {
+    var banner = document.getElementById('offlineNoticeBanner');
+    var textEl = document.getElementById('offlineBannerText');
+    if (!banner || !textEl) return;
+
+    window.addEventListener('offline', function () {
+      textEl.textContent = '인터넷 연결이 끊겼습니다. 네트워크가 재연결될 때까지 대기합니다.';
+      banner.className = 'offline-banner active warning';
+      banner.hidden = false;
+      U.toast('오프라인 상태입니다. 인터넷 연결을 확인해주세요.', 'error');
+    });
+
+    window.addEventListener('online', function () {
+      textEl.textContent = '인터넷 연결이 정상적으로 복구되었습니다. 실시간 동기화가 재개됩니다.';
+      banner.className = 'offline-banner active success';
+      banner.hidden = false;
+      U.toast('인터넷이 다시 연결되었습니다.', 'success');
+      setTimeout(function () {
+        banner.hidden = true;
+        banner.classList.remove('active');
+      }, 3500);
+    });
+  }
+
+  /* ========== 심야 서재 캔들라이트 테마 (고도화 요소 4) ========== */
+  function bindThemeToggle() {
+    var btn = document.getElementById('themeToggleBtn');
+    var textEl = document.getElementById('themeToggleText');
+    var savedTheme = localStorage.getItem('pds_theme') || 'light';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.body.classList.add('candlelight-theme');
+        if (textEl) textEl.textContent = '주간 서재';
+        if (btn) btn.setAttribute('title', '주간 서재 모드로 전환');
+      } else {
+        document.body.classList.remove('candlelight-theme');
+        if (textEl) textEl.textContent = '캔들라이트';
+        if (btn) btn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+      }
+    }
+
+    applyTheme(savedTheme);
+
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var isDark = document.body.classList.contains('candlelight-theme');
+        var nextTheme = isDark ? 'light' : 'dark';
+        localStorage.setItem('pds_theme', nextTheme);
+        applyTheme(nextTheme);
+        U.toast(nextTheme === 'dark' ? '심야 서재 캔들라이트 모드가 켜졌습니다.' : '주간 서재 모드가 켜졌습니다.', 'info');
       });
     }
   }
@@ -1187,12 +1309,26 @@
             uploadedFileUrls = (await Promise.all(uploadPromises)).filter(Boolean);
           }
 
-          var existingPhotos = [];
-          if (isEdit && existingItem && existingItem.photos) {
-            existingPhotos = existingItem.photos.filter(function (p) { return p && (p.startsWith('http') || p.startsWith('data:')); });
+          var combined = photos.concat(uploadedFileUrls);
+          // 텍스트 영역에 노출되지 않았던 기존 data: URI가 있다면 유지
+          if (isEdit && existingItem && Array.isArray(existingItem.photos)) {
+            existingItem.photos.forEach(function (p) {
+              if (p && p.startsWith('data:') && !combined.includes(p)) {
+                combined.push(p);
+              }
+            });
           }
 
-          var allPhotos = photos.concat(existingPhotos).concat(uploadedFileUrls).filter(Boolean);
+          // 중복 사진 URL 제거 (캐러셀 복제 방지)
+          var seen = {};
+          var allPhotos = [];
+          for (var pi = 0; pi < combined.length; pi++) {
+            var pUrl = combined[pi].trim();
+            if (pUrl && !seen[pUrl]) {
+              seen[pUrl] = true;
+              allPhotos.push(pUrl);
+            }
+          }
 
           var entryData = {
             title: title,
@@ -1292,9 +1428,10 @@
           (t.status === '완료'
             ? '<button class="btn-revert" type="button" onclick="App.revertTodo(\'' + t.id + '\')">' + Icons.rotateCcw(14) + ' 진행 중으로 되돌리기</button>'
             : t.status === '보류'
-            ? '<button class="btn-revert" type="button" onclick="App.revertTodo(\'' + t.id + '\')">' + Icons.play(13) + ' 진행 재개</button>' +
+              ? '<button class="btn-revert" type="button" onclick="App.togglePendingTodo(\'' + t.id + '\', \'진행중\')">' + Icons.play(13) + ' 진행 재개</button>' +
               '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>'
-            : '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>') +
+              : '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>' +
+              '<button class="btn-outline btn-pending-toggle" type="button" title="할 일을 보류 상태로 변경합니다" onclick="App.togglePendingTodo(\'' + t.id + '\', \'보류\')">' + Icons.pause(13) + ' 보류</button>') +
           '<button class="btn-outline" type="button" onclick="App.addRecord(\'' + t.id + '\')">' + Icons.play(13) + ' 실행 기록</button>' +
           '<button class="btn-outline" type="button" onclick="App.editTodo(\'' + t.id + '\')">' + Icons.edit(13) + ' 수정</button>' +
           '<button class="btn-danger" type="button" onclick="App.confirmDeleteTodo(\'' + t.id + '\',\'' + U.esc(t.title) + '\')">' + Icons.trash(13) + ' 삭제</button>' +
@@ -1447,8 +1584,10 @@
             var r = recs[j];
             html += '<div class="history-item record-item">' +
               '<div class="record-info">' +
+              '<div class="record-time-header">' +
               '<span class="record-time">' + Icons.clock(13) + ' <strong>' + U.formatDateTime(r.started_at) + '</strong> ~ ' + U.formatDateTime(r.ended_at) + '</span>' +
               '<span class="record-hours badge badge-tag">' + r.actual_hours + '시간 소요</span>' +
+              '</div>' +
               (r.blocker ? '<div class="record-blocker">' + Icons.alertCircle(13) + ' <strong>막힌 이유:</strong> ' + U.esc(r.blocker) + '</div>' : '') +
               '</div>' +
               '<button class="btn-icon-danger" type="button" title="기록 삭제" onclick="App.confirmDeleteRecord(\'' + r.id + '\')">' +
@@ -1759,6 +1898,16 @@
         else loadTodos();
       } catch (err) {
         U.toast('되돌리기 실패: ' + err.message, 'error');
+      }
+    },
+    togglePendingTodo: async function (id, newStatus) {
+      try {
+        await Todos.update(id, { status: newStatus });
+        U.toast(newStatus === '보류' ? '할 일을 보류 상태로 변경했습니다.' : '할 일을 다시 진행 중으로 변경했습니다.', 'info');
+        if (currentTab === 'calendar') loadCalendar();
+        else loadTodos();
+      } catch (err) {
+        U.toast('상태 변경 실패: ' + err.message, 'error');
       }
     },
     confirmDeleteTodo: function (id, title) {

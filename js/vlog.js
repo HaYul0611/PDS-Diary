@@ -16,12 +16,21 @@ var Vlog = {
 
       return (res.data || []).map(function (it) {
         var rawPhotos = Array.isArray(it.photos) ? it.photos : [];
+        var cleanPhotos = [];
+        var pSeen = {};
+        for (var pi = 0; pi < rawPhotos.length; pi++) {
+          var pUrl = (typeof rawPhotos[pi] === 'string') ? rawPhotos[pi].trim() : '';
+          if (pUrl && !pSeen[pUrl]) {
+            pSeen[pUrl] = true;
+            cleanPhotos.push(pUrl);
+          }
+        }
         return {
           id: it.id,
           date: it.date,
           dayOfWeek: it.day_of_week || 'mon',
           title: it.title || '',
-          photos: rawPhotos.filter(function (p) { return typeof p === 'string' && p.trim().length > 0; }),
+          photos: cleanPhotos,
           content: it.content || '',
           created_at: it.created_at
         };
@@ -39,12 +48,21 @@ var Vlog = {
       if (res.error || !res.data) return null;
       var it = res.data;
       var rawPhotos = Array.isArray(it.photos) ? it.photos : [];
+      var cleanPhotos = [];
+      var pSeen = {};
+      for (var pi = 0; pi < rawPhotos.length; pi++) {
+        var pUrl = (typeof rawPhotos[pi] === 'string') ? rawPhotos[pi].trim() : '';
+        if (pUrl && !pSeen[pUrl]) {
+          pSeen[pUrl] = true;
+          cleanPhotos.push(pUrl);
+        }
+      }
       return {
         id: it.id,
         date: it.date,
         dayOfWeek: it.day_of_week || 'mon',
         title: it.title || '',
-        photos: rawPhotos.filter(function (p) { return typeof p === 'string' && p.trim().length > 0; }),
+        photos: cleanPhotos,
         content: it.content || '',
         created_at: it.created_at
       };

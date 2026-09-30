@@ -1727,16 +1727,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-radius: 4px;
 }
 
-/* 캐러셀 네비게이션 버튼 */
+/* 캐러셀 네비게이션 버튼 (사진 호버 시 부드럽게 나타남) */
 .carousel-nav-btn {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-50%) scale(0.92);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
   border: 1px solid var(--border);
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1745,15 +1746,34 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-weight: 700;
   color: var(--text);
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   z-index: 10;
+}
+
+/* 사진 영역에 마우스를 올렸을 때 부드럽게 노출 */
+.vlog-polaroid-frame:hover .carousel-nav-btn,
+.vlog-carousel:hover .carousel-nav-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1);
 }
 
 .carousel-nav-btn:hover {
   background: #ffffff;
   color: var(--accent);
-  transform: translateY(-50%) scale(1.1);
+  transform: translateY(-50%) scale(1.14) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+@media (hover: none) {
+  .carousel-nav-btn {
+    opacity: 0.9;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1);
+  }
 }
 
 .carousel-nav-btn.prev {
@@ -2098,6 +2118,72 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Execution Record Items & Time Spacing (시간과 소요시간 뱃지 간격 자연스럽게 조정) */
+.record-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  background: #fbf9f4;
+  border-left: 3px solid var(--accent);
+}
+
+.record-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.record-time-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.record-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+.record-time strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.record-hours {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 3px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(184, 92, 57, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(184, 92, 57, 0.22);
+}
+
+.record-blocker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 6px 10px;
+  background: rgba(220, 53, 69, 0.05);
+  border: 1px dashed rgba(220, 53, 69, 0.25);
+  border-radius: 6px;
+  color: #a83232;
+  font-size: 12.5px;
+  line-height: 1.4;
 }
 
 /* ========== Modal ========== */
@@ -3335,4 +3421,246 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* ============================================================
+   ★ 고도화 기능 1: 오프라인 감지 및 재연결 알림 띠 ★
+   ============================================================ */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.offline-banner.active {
+  transform: translateY(0);
+}
+
+.offline-banner.warning {
+  background: #fff8e7;
+  color: #92400e;
+  border-bottom: 2px solid #d97706;
+}
+
+.offline-banner.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border-bottom: 2px solid #059669;
+}
+
+.offline-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.offline-icon-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: offlinePulse 1.5s infinite;
+}
+
+@keyframes offlinePulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.6);
+  }
+
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(217, 119, 6, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
+  }
+}
+
+/* ============================================================
+   ★ 고도화 기능 3: 할 일 보류 퀵 액션 버튼 ★
+   ============================================================ */
+.btn-pending-toggle {
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+  background: #fefce8 !important;
+}
+
+.btn-pending-toggle:hover {
+  background: #fef08a !important;
+  color: #92400e !important;
+  border-color: #f59e0b !important;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   ★ 고도화 기능 4: 심야 서재 캔들라이트 테마 (다크 모드) ★
+   ============================================================ */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #faf6ee;
+  border: 1px solid var(--border);
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: #f2e9dc;
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn .theme-icon-candle {
+  color: #d4af37;
+  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.6));
+}
+
+/* 캔들라이트 테마 스타일 */
+body.candlelight-theme {
+  background-color: #120d09 !important;
+  background-image:
+    radial-gradient(circle at 50% 15%, rgba(212, 175, 55, 0.08) 0%, transparent 65%),
+    radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px) !important;
+  color: #e4d7c5 !important;
+}
+
+body.candlelight-theme #app {
+  background: #1c150e !important;
+  border-color: #3b2818 !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(212, 175, 55, 0.08) !important;
+}
+
+body.candlelight-theme .diary-book-wrapper {
+  background: #1f1710 !important;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.candlelight-theme .diary-grid-texture {
+  opacity: 0.12 !important;
+  filter: invert(1);
+}
+
+body.candlelight-theme .header {
+  border-bottom-color: #382517 !important;
+}
+
+body.candlelight-theme .tab {
+  background: #251b12 !important;
+  color: #9d8b75 !important;
+  border-color: #382517 !important;
+}
+
+body.candlelight-theme .tab:hover {
+  color: #e4d7c5 !important;
+  background: #2c2016 !important;
+}
+
+body.candlelight-theme .tab.active {
+  background: #1f1710 !important;
+  color: #f7e1b5 !important;
+  border-bottom-color: #1f1710 !important;
+  box-shadow: 0 -3px 12px rgba(212, 175, 55, 0.12) !important;
+}
+
+body.candlelight-theme .plan-card,
+body.candlelight-theme .card,
+body.candlelight-theme .vlog-card,
+body.candlelight-theme .dash-card,
+body.candlelight-theme .history-item {
+  background: #241a12 !important;
+  border-color: #3f2b1b !important;
+  color: #ded0bc !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.candlelight-theme .card-done {
+  background: #1a1612 !important;
+  opacity: 0.75;
+}
+
+body.candlelight-theme .vlog-polaroid-frame {
+  background: #2a1e15 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.candlelight-theme .input,
+body.candlelight-theme .textarea,
+body.candlelight-theme .select,
+body.candlelight-theme .custom-select-trigger {
+  background: #18110b !important;
+  border-color: #442e1d !important;
+  color: #f0e4d2 !important;
+}
+
+body.candlelight-theme .modal-dialog {
+  background: #201710 !important;
+  border-color: #4a3220 !important;
+  color: #e4d7c5 !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(212, 175, 55, 0.1) !important;
+}
+
+body.candlelight-theme .account-menu-dropdown,
+body.candlelight-theme .custom-select-options {
+  background: #221811 !important;
+  border-color: #442e1d !important;
+}
+
+body.candlelight-theme .account-menu-item,
+body.candlelight-theme .custom-select-option {
+  color: #dfd1bd !important;
+}
+
+body.candlelight-theme .account-menu-item:hover,
+body.candlelight-theme .custom-select-option:hover {
+  background: #332317 !important;
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .cal-cell {
+  background: #221811 !important;
+  border-color: #382517 !important;
+  color: #d6c6b0 !important;
+}
+
+body.candlelight-theme .cal-cell.other-month {
+  background: #17110c !important;
+  opacity: 0.45;
+}
+
+body.candlelight-theme .theme-toggle-btn {
+  background: #2c2016;
+  border-color: #4a3320;
+  color: #f5dfb8;
+}
+
+body.candlelight-theme .btn-outline {
+  border-color: #4a3320 !important;
+  color: #dfd1bd !important;
+}
+
+body.candlelight-theme .btn-outline:hover {
+  background: #332317 !important;
+  color: #f7e1b5 !important;
 }

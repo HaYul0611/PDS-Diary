@@ -7,7 +7,8 @@
   <meta name="description" content="플랜두씨 다이어리 (PDS Diary) — 계획(Plan) → 실행(Do) → 돌아보기(See)로 이어지는 해리포터풍 감성 양장본 다이어리">
   <meta name="theme-color" content="#2c1a0e">
   <title>P.D.S Canvas — 플랜두씨 다이어리</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A4.5 4.5 0 0 0 2 6.5v13H4z'/></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A4.5 4.5 0 0 0 2 6.5v13H4z'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -17,6 +18,14 @@
 </head>
 
 <body>
+  <!-- 오프라인 상태 감지 및 복구 알림 띠 (고도화 요소 1) -->
+  <div id="offlineNoticeBanner" class="offline-banner" hidden>
+    <div class="offline-banner-content">
+      <span class="offline-icon-pulse"></span>
+      <span id="offlineBannerText">인터넷 연결이 끊겼습니다. 네트워크가 재연결될 때까지 대기합니다.</span>
+    </div>
+  </div>
+
   <!-- [과제 7] 첫 화면: 웅장하고 부드러운 해리포터풍 마법 양장본 다이어리 (Harry Potter Hardcover 3D Scene) -->
   <section id="authScreen" class="auth-book-scene">
     <div id="closedDiaryBook" class="closed-diary-book harry-potter-book">
@@ -36,29 +45,37 @@
         <!-- 해리포터풍 부드러운 골드 필리그리 & 코너 아라베스크 테두리 장식 -->
         <div class="filigree-frame">
           <svg class="filigree-corner tl" viewBox="0 0 44 44" fill="none">
-            <path d="M4 40V14C4 8.5 8.5 4 14 4H40" stroke="url(#goldGradient)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M10 40V18C10 13.6 13.6 10 18 10H40" stroke="url(#goldGradient)" stroke-width="1.1" stroke-dasharray="2.5 2" opacity="0.8"/>
+            <path d="M4 40V14C4 8.5 8.5 4 14 4H40" stroke="url(#goldGradient)" stroke-width="2"
+              stroke-linecap="round" />
+            <path d="M10 40V18C10 13.6 13.6 10 18 10H40" stroke="url(#goldGradient)" stroke-width="1.1"
+              stroke-dasharray="2.5 2" opacity="0.8" />
             <circle cx="16" cy="16" r="3" fill="url(#goldGradient)" />
             <circle cx="28" cy="10" r="1.5" fill="url(#goldGradient)" />
             <circle cx="10" cy="28" r="1.5" fill="url(#goldGradient)" />
           </svg>
           <svg class="filigree-corner tr" viewBox="0 0 44 44" fill="none">
-            <path d="M40 40V14C40 8.5 35.5 4 30 4H4" stroke="url(#goldGradient)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M34 40V18C34 13.6 30.4 10 26 10H4" stroke="url(#goldGradient)" stroke-width="1.1" stroke-dasharray="2.5 2" opacity="0.8"/>
+            <path d="M40 40V14C40 8.5 35.5 4 30 4H4" stroke="url(#goldGradient)" stroke-width="2"
+              stroke-linecap="round" />
+            <path d="M34 40V18C34 13.6 30.4 10 26 10H4" stroke="url(#goldGradient)" stroke-width="1.1"
+              stroke-dasharray="2.5 2" opacity="0.8" />
             <circle cx="28" cy="16" r="3" fill="url(#goldGradient)" />
             <circle cx="16" cy="10" r="1.5" fill="url(#goldGradient)" />
             <circle cx="34" cy="28" r="1.5" fill="url(#goldGradient)" />
           </svg>
           <svg class="filigree-corner bl" viewBox="0 0 44 44" fill="none">
-            <path d="M4 4V30C4 35.5 8.5 40 14 40H40" stroke="url(#goldGradient)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M10 4V26C10 30.4 13.6 34 18 34H40" stroke="url(#goldGradient)" stroke-width="1.1" stroke-dasharray="2.5 2" opacity="0.8"/>
+            <path d="M4 4V30C4 35.5 8.5 40 14 40H40" stroke="url(#goldGradient)" stroke-width="2"
+              stroke-linecap="round" />
+            <path d="M10 4V26C10 30.4 13.6 34 18 34H40" stroke="url(#goldGradient)" stroke-width="1.1"
+              stroke-dasharray="2.5 2" opacity="0.8" />
             <circle cx="16" cy="28" r="3" fill="url(#goldGradient)" />
             <circle cx="28" cy="34" r="1.5" fill="url(#goldGradient)" />
             <circle cx="10" cy="16" r="1.5" fill="url(#goldGradient)" />
           </svg>
           <svg class="filigree-corner br" viewBox="0 0 44 44" fill="none">
-            <path d="M40 4V30C40 35.5 35.5 40 30 40H4" stroke="url(#goldGradient)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M34 4V26C34 30.4 30.4 34 26 34H4" stroke="url(#goldGradient)" stroke-width="1.1" stroke-dasharray="2.5 2" opacity="0.8"/>
+            <path d="M40 4V30C40 35.5 35.5 40 30 40H4" stroke="url(#goldGradient)" stroke-width="2"
+              stroke-linecap="round" />
+            <path d="M34 4V26C34 30.4 30.4 34 26 34H4" stroke="url(#goldGradient)" stroke-width="1.1"
+              stroke-dasharray="2.5 2" opacity="0.8" />
             <circle cx="28" cy="28" r="3" fill="url(#goldGradient)" />
             <circle cx="16" cy="34" r="1.5" fill="url(#goldGradient)" />
             <circle cx="34" cy="16" r="1.5" fill="url(#goldGradient)" />
@@ -72,14 +89,17 @@
           <div class="hp-crest-emblem">
             <svg width="74" height="74" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- 방패 외곽 골드 프레임 -->
-              <path d="M50 8 L82 22 V52 C82 72 50 92 50 92 C50 92 18 72 18 52 V22 Z" stroke="url(#goldGradient)" stroke-width="2.5" fill="rgba(12, 22, 40, 0.75)" filter="url(#goldGlow)" />
-              <path d="M50 14 L76 26 V50 C76 66 50 84 50 84 C50 84 24 66 24 50 V26 Z" stroke="url(#goldGradient)" stroke-width="1.2" stroke-dasharray="3 2" fill="none" opacity="0.8" />
+              <path d="M50 8 L82 22 V52 C82 72 50 92 50 92 C50 92 18 72 18 52 V22 Z" stroke="url(#goldGradient)"
+                stroke-width="2.5" fill="rgba(12, 22, 40, 0.75)" filter="url(#goldGlow)" />
+              <path d="M50 14 L76 26 V50 C76 66 50 84 50 84 C50 84 24 66 24 50 V26 Z" stroke="url(#goldGradient)"
+                stroke-width="1.2" stroke-dasharray="3 2" fill="none" opacity="0.8" />
               <!-- 4분할 격자 라인 -->
-              <line x1="50" y1="18" x2="50" y2="82" stroke="url(#goldGradient)" stroke-width="1.2" opacity="0.7"/>
-              <line x1="26" y1="46" x2="74" y2="46" stroke="url(#goldGradient)" stroke-width="1.2" opacity="0.7"/>
+              <line x1="50" y1="18" x2="50" y2="82" stroke="url(#goldGradient)" stroke-width="1.2" opacity="0.7" />
+              <line x1="26" y1="46" x2="74" y2="46" stroke="url(#goldGradient)" stroke-width="1.2" opacity="0.7" />
               <!-- 중앙 PDS 모노그램 -->
               <circle cx="50" cy="46" r="14" fill="#0d192d" stroke="url(#goldGradient)" stroke-width="1.8" />
-              <text x="50" y="52" text-anchor="middle" font-family="'Cinzel', 'Times New Roman', serif" font-weight="bold" font-size="14" fill="url(#goldGradient)" letter-spacing="1">PDS</text>
+              <text x="50" y="52" text-anchor="middle" font-family="'Cinzel', 'Times New Roman', serif"
+                font-weight="bold" font-size="14" fill="url(#goldGradient)" letter-spacing="1">PDS</text>
               <!-- 상단 왕관 장식 -->
               <path d="M40 18 L50 11 L60 18 L56 22 L44 22 Z" fill="url(#goldGradient)" opacity="0.9" />
               <circle cx="50" cy="11" r="1.5" fill="#fff" />
@@ -104,7 +124,8 @@
         <!-- 마그네틱 자물쇠 씰 (로그인 시 언락 애니메이션) -->
         <div class="lock-strap-accent hp-strap">
           <div class="lock-buckle hp-buckle" id="lockBuckle">
-            <svg class="lock-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="lock-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path id="lockShackle" d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
@@ -127,15 +148,18 @@
         <form id="authForm" class="auth-form hp-form" onsubmit="return false;">
           <div class="auth-field">
             <label for="authEmail" id="authEmailLabel">계정 이메일</label>
-            <input type="email" id="authEmail" class="auth-input hp-input" placeholder="example@domain.com" required autocomplete="email">
+            <input type="email" id="authEmail" class="auth-input hp-input" placeholder="example@domain.com" required
+              autocomplete="email">
           </div>
           <div class="auth-field">
             <label for="authPassword">비밀번호</label>
-            <input type="password" id="authPassword" class="auth-input hp-input" placeholder="비밀번호 (6자 이상)" required autocomplete="current-password">
+            <input type="password" id="authPassword" class="auth-input hp-input" placeholder="비밀번호 (6자 이상)" required
+              autocomplete="current-password">
           </div>
           <button type="submit" id="authSubmitBtn" class="auth-open-book-btn hp-btn">
             <span id="authSubmitText">다이어리 열기</span>
-            <svg class="btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
@@ -144,7 +168,7 @@
 
         <div class="auth-footer-help">
           <p id="authToggleHelp">
-            아직 다이어리 계정이 없으신가요? 
+            아직 다이어리 계정이 없으신가요?
             <button type="button" id="authSwitchModeBtn" class="auth-link-btn hp-link">새 계정 만들기</button>
           </p>
         </div>
@@ -169,16 +193,19 @@
           <!-- [과제 7] 트렌디한 프로필 & 계정 상태 드롭다운 셀렉트 박스 -->
           <div id="userProfileArea" class="user-profile-area" style="display: none;">
             <div id="accountDropdownWrap" class="account-dropdown-wrap">
-              <button id="accountTriggerBtn" class="account-trigger-btn" type="button" aria-haspopup="menu" aria-expanded="false" title="내 계정 관리">
+              <button id="accountTriggerBtn" class="account-trigger-btn" type="button" aria-haspopup="menu"
+                aria-expanded="false" title="내 계정 관리">
                 <span class="user-avatar-badge">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                   <span class="status-indicator-dot" title="보안 세션 활성화"></span>
                 </span>
                 <span id="userEmailText" class="user-email-text"></span>
-                <svg class="chevron-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="chevron-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
@@ -188,9 +215,10 @@
                 <div class="account-menu-header">
                   <div class="menu-user-row">
                     <div class="menu-avatar">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                       </svg>
                     </div>
                     <div class="menu-user-info">
@@ -204,7 +232,8 @@
                 <div class="account-menu-divider"></div>
                 <div class="account-menu-actions">
                   <button id="logoutBtn" class="account-menu-item" type="button" role="menuitem">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                       <polyline points="16 17 21 12 16 7" />
                       <line x1="21" y1="12" x2="9" y2="12" />
@@ -212,7 +241,8 @@
                     <span>다이어리 닫기 (로그아웃)</span>
                   </button>
                   <button id="deleteAccountBtn" class="account-menu-item danger" type="button" role="menuitem">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="3 6 5 6 21 6" />
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                     </svg>
@@ -222,6 +252,18 @@
               </div>
             </div>
           </div>
+          <!-- 심야 서재 캔들라이트 테마 스위치 (고도화 요소 4) -->
+          <button id="themeToggleBtn" class="hdr-btn theme-toggle-btn" type="button" title="심야 서재 캔들라이트 모드 전환"
+            aria-label="테마 전환">
+            <svg class="theme-icon-candle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2c.6 1.5 2 2.5 2 4 0 1.5-1 2.5-2 3-1-.5-2-1.5-2-3 0-1.5 1.4-2.5 2-4z" fill="#d4af37"
+                stroke="none" />
+              <path d="M9 9h6v12H9z" />
+              <path d="M7 21h10" />
+            </svg>
+            <span id="themeToggleText">캔들라이트</span>
+          </button>
           <button id="exportBtn" class="hdr-btn" type="button" title="전체 데이터 내보내기">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
