@@ -70,13 +70,15 @@ var U = {
       var history = (await db.from('plan_history').select('*')).data || [];
       var todos = (await db.from('todos').select('*')).data || [];
       var records = (await db.from('records').select('*')).data || [];
+      var vlogs = (await db.from('vlog_entries').select('*')).data || [];
 
       var data = {
         exported_at: new Date().toISOString(),
         plans: plans,
         plan_history: history,
         todos: todos,
-        records: records
+        records: records,
+        vlog_entries: vlogs
       };
 
       var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

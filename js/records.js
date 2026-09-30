@@ -30,13 +30,18 @@ var Records = {
     }
     var hours = U.hoursDiff(data.started_at, data.ended_at);
 
-    var res = await db.from('records').insert({
+    var user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    var payload = {
       todo_id: data.todo_id,
       started_at: started.toISOString(),
       ended_at: ended.toISOString(),
       actual_hours: hours,
       blocker: data.blocker ? data.blocker.trim() : null
-    }).select().single();
+    };
+    if (user && user.id) {
+      payload.user_id = user.id;
+    }
+    var res = await db.from('records').insert(payload).select().single();
     if (res.error) throw res.error;
     return res.data;
   },

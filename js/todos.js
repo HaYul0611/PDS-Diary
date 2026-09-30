@@ -2,7 +2,7 @@
 
 var Todos = {
   /* 계획에 딸린 할 일 조회 */
-  listByPlan: async function(planId, opts) {
+  listByPlan: async function (planId, opts) {
     var q = db.from('todos').select('*').eq('plan_id', planId);
 
     /* 검색 (C18) */
@@ -39,7 +39,7 @@ var Todos = {
     /* 우선순위 정렬 (높음 > 보통 > 낮음 순) */
     if (opts && opts.sort === 'priority') {
       var order = { '높음': 0, '보통': 1, '낮음': 2 };
-      data.sort(function(a, b) {
+      data.sort(function (a, b) {
         var diff = (order[a.priority] || 1) - (order[b.priority] || 1);
         return diff !== 0 ? diff : new Date(b.created_at) - new Date(a.created_at);
       });
@@ -49,34 +49,49 @@ var Todos = {
   },
 
   /* 생성 (C09) */
-  create: async function(data) {
-    var res = await db.from('todos').insert({
+  create: async function (data) {
+    var user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    var payload = {
       plan_id: data.plan_id,
       title: data.title,
       due_date: data.due_date || null,
       priority: data.priority || '보통',
+      status: data.status || '진행중',
       tag: data.tag || null,
       estimated_hours: parseFloat(data.estimated_hours) || 0
-    }).select().single();
+    };
+    if (user && user.id) {
+      payload.user_id = user.id;
+    }
+    var res = await db.from('todos').insert(payload).select().single();
     if (res.error) throw res.error;
     return res.data;
   },
 
   /* 수정 (C10) */
-  update: async function(id, data) {
-    var res = await db.from('todos').update({
+  update: async function (id, data) {
+    var payload = {
       title: data.title,
       due_date: data.due_date || null,
       priority: data.priority || '보통',
       tag: data.tag || null,
       estimated_hours: parseFloat(data.estimated_hours) || 0
-    }).eq('id', id).select().single();
+    };
+    if (data.status) {
+      payload.status = data.status;
+      if (data.status === '완료') {
+        payload.completed_at = new Date().toISOString();
+      } else {
+        payload.completed_at = null;
+      }
+    }
+    var res = await db.from('todos').update(payload).eq('id', id).select().single();
     if (res.error) throw res.error;
     return res.data;
   },
 
   /* 완료 처리 (C11 + C21 멱등성) */
-  complete: async function(id) {
+  complete: async function (id) {
     var key = 'complete-' + id + '-' + Date.now();
     var res = await db.from('todos').update({
       status: '완료',
@@ -88,7 +103,7 @@ var Todos = {
   },
 
   /* 진행 중으로 되돌리기 (C12) */
-  revert: async function(id) {
+  revert: async function (id) {
     var res = await db.from('todos').update({
       status: '진행중',
       completed_at: null,
@@ -99,7 +114,7 @@ var Todos = {
   },
 
   /* 삭제 (C13) */
-  remove: async function(id) {
+  remove: async function (id) {
     var recDel = await db.from('records').delete().eq('todo_id', id);
     if (recDel.error) throw recDel.error;
     var todoDel = await db.from('todos').delete().eq('id', id);

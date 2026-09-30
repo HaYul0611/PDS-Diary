@@ -15,14 +15,19 @@ var Plans = {
 
   /* 생성 */
   create: async function(data) {
-    var res = await db.from('plans').insert({
+    var user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    var payload = {
       title: data.title,
       start_date: data.start_date,
       end_date: data.end_date,
       priority: data.priority,
       success_criteria: data.success_criteria,
       estimated_hours: parseFloat(data.estimated_hours) || 0
-    }).select().single();
+    };
+    if (user && user.id) {
+      payload.user_id = user.id;
+    }
+    var res = await db.from('plans').insert(payload).select().single();
     return res.data;
   },
 
@@ -31,7 +36,8 @@ var Plans = {
     /* 1. 현재 값을 이력에 보존 (C08) */
     var current = await Plans.get(id);
     if (current) {
-      await db.from('plan_history').insert({
+      var user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+      var histPayload = {
         plan_id: id,
         title: current.title,
         start_date: current.start_date,
@@ -40,7 +46,11 @@ var Plans = {
         success_criteria: current.success_criteria,
         estimated_hours: current.estimated_hours,
         change_reason: reason || ''
-      });
+      };
+      if (user && user.id) {
+        histPayload.user_id = user.id;
+      }
+      await db.from('plan_history').insert(histPayload);
     }
 
     /* 2. 업데이트 */

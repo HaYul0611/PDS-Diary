@@ -3,6 +3,9 @@
 > **계획(Plan) → 실제로 한 일(Do) → 돌아보기(See)** 가 하나로 이어지는 실제 양장본 감성의 웹 다이어리입니다.  
 > 단순한 할 일 체크리스트를 넘어, 내가 세운 계획과 실제 실행 사이의 시간 오차와 막힌 지점(Blocker)을 시각화하고 다음 계획으로 피드백을 전달하는 자기 성장 도구입니다.
 
+* 🌐 **서비스 배포 URL (GitHub Pages)**: [https://hayul0611.github.io/PDS-Diary/](https://hayul0611.github.io/PDS-Diary/)
+* 📦 **소스 코드 저장소**: [https://github.com/HaYul0611/PDS-Diary](https://github.com/HaYul0611/PDS-Diary)
+
 ---
 
 ## 🌟 주요 기능 및 특징
@@ -70,8 +73,22 @@ storage.buckets
 ```
 
 상세한 스키마 정의 및 계약 명세는 다음 파일에서 확인하실 수 있습니다:
-* SQL 스키마: [`contracts/pds-schema-v2.sql`](contracts/pds-schema-v2.sql)
-* 데이터 스키마 명세: [`contracts/pds-schema-v2.json`](contracts/pds-schema-v2.json)
+* SQL 스키마 (v2): [`contracts/pds-schema-v2.sql`](contracts/pds-schema-v2.sql)
+* 데이터 스키마 명세 (v2): [`contracts/pds-schema-v2.json`](contracts/pds-schema-v2.json)
+* 인증 및 사용자 격리 RLS 스키마 (v3): [`contracts/pds-schema-v3.sql`](contracts/pds-schema-v3.sql)
+
+---
+
+## 📜 과제 7: 인증 구현 설명서 및 채점용 실증 보고서
+
+과제 7의 평가 기준(카드 1~5)에 맞추어 작성된 공식 제출문 전문은 다음 링크에서 확인하실 수 있습니다:
+👉 **[과제 7 공식 제출 설명서 바로가기 (`과제7_제출문.md`)](과제7_제출문.md)**
+
+* **카드 1 (인증 수단 선택)**: Supabase Auth (GoTrue v2.x) 채택 및 미선택 기술 대비 이유, 계정 열거 방지 통일 문구
+* **카드 2 (비밀번호 보관)**: `bcrypt` (Cost 10) 암호화, 계정별 고유 Salt로 인한 동일 비번 해시 상이 실증, 네트워크/로그 평문 부재
+* **카드 3 (토큰 관리)**: JWT Bearer Access Token (3600초 만료), 동일 주소 로그인 성공(`200`) vs 로그아웃 거절(`403`) 대조, Secret Key 서버 격리
+* **카드 4 (타인 자료 403 차단)**: 계정 간 양방향 읽기/수정/삭제 0건 격리, 위조 user_id 주입 시 `403 Forbidden` RLS 차단, 차단 소스 위치 명시
+* **카드 5 (5일 실제 사용 & 규칙 변경)**: Asia/Seoul 기준 5일 실기록, 2일차 뒤 3일차 앞 "2시간 단위 분할 규칙" 변경, 시간 오차율(%) 비교 (41.5% → 14.8%), 수기 합계 일치 검증, 단일 JSON 내보내기 및 회원 탈퇴(DB 영구 삭제)
 
 ---
 
@@ -85,9 +102,10 @@ storage.buckets
 2. 별도의 빌드 도구 설치 없이 브라우저에서 바로 열거나 로컬 웹 서버(VS Code Live Server 등)로 실행합니다:
    * `index.html` 파일을 브라우저로 열기
 3. Supabase 데이터베이스 설정:
-   * Supabase 프로젝트 생성 후 `contracts/pds-schema-v2.sql`의 SQL 코드를 SQL Editor에 붙여넣고 실행(Run)합니다.
+   * Supabase 프로젝트 생성 후 `contracts/pds-schema-v2.sql` 및 `contracts/pds-schema-v3.sql`의 SQL 코드를 SQL Editor에 붙여넣고 실행(Run)합니다.
 
 ---
 
 ## 📄 라이선스
 MIT License
+

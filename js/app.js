@@ -21,8 +21,335 @@
     bindEvents();
     bindCalendarControls();
     bindVlogControls();
+    bindAuth();
     CustomSelect.enhanceAll(document);
-    loadPlans();
+
+    // [과제 7] 인증 세션 감지 및 초기화 (T07-C03, T07-C91~C100)
+    if (typeof Auth !== 'undefined') {
+      Auth.init(handleAuthState);
+    } else {
+      loadPlans();
+    }
+  }
+
+  /* ========== 인증 상태 처리 및 UI 전환 (T07-C03, T07-C97) ========== */
+  function handleAuthState(user) {
+    var appEl = document.getElementById('app');
+    var authScreen = document.getElementById('authScreen');
+    var diaryWrapper = document.getElementById('diaryMainWrapper');
+    var userProfile = document.getElementById('userProfileArea');
+    var emailText = document.getElementById('userEmailText');
+    var dropdownEmail = document.getElementById('dropdownUserEmail');
+    var dropdownWrap = document.getElementById('accountDropdownWrap');
+
+    if (user) {
+      // 1. 로그인 성공 상태: 오픈된 다이어리 내지 스타일 복원
+      if (authScreen) authScreen.hidden = true;
+      if (appEl) {
+        appEl.hidden = false;
+        appEl.classList.remove('auth-mode');
+      }
+      if (diaryWrapper) diaryWrapper.hidden = false;
+      if (userProfile) userProfile.style.display = 'inline-flex';
+      if (emailText) emailText.textContent = user.email || '내 다이어리';
+      if (dropdownEmail) dropdownEmail.textContent = user.email || '내 계정';
+
+      // 사용자 데이터 로드
+      loadPlans();
+      if (currentTab === 'calendar') loadCalendar();
+      else if (currentTab === 'todos') loadTodos();
+      else if (currentTab === 'records') loadRecords();
+      else if (currentTab === 'vlog') loadVlog();
+      else if (currentTab === 'review') loadReview();
+    } else {
+      // 2. 비로그인 상태: 오픈된 프레임 숨기고 완전히 닫힌 다이어리 표지만 노출
+      selectedPlanId = null;
+      localStorage.removeItem('pds_vlog_entries');
+      if (authScreen) authScreen.hidden = false;
+      if (appEl) {
+        appEl.hidden = true;
+        appEl.classList.add('auth-mode');
+      }
+      if (diaryWrapper) diaryWrapper.hidden = true;
+      if (userProfile) userProfile.style.display = 'none';
+      if (emailText) emailText.textContent = '';
+      if (dropdownEmail) dropdownEmail.textContent = '';
+      if (dropdownWrap) dropdownWrap.classList.remove('open');
+
+      closeModal();
+    }
+  }
+
+  /* ========== 인증 폼 및 컨트롤 바인딩 (T07-C91~C100, T07-C134) ========== */
+  var authMode = 'login'; // 'login' | 'signup'
+
+  function bindAuth() {
+    var toggleWrap = document.getElementById('authSwitchToggle');
+    var tabLogin = document.getElementById('authTabLogin');
+    var tabSignup = document.getElementById('authTabSignup');
+    var switchBtn = document.getElementById('authSwitchModeBtn');
+    var authForm = document.getElementById('authForm');
+    var submitBtn = document.getElementById('authSubmitBtn');
+    var submitText = document.getElementById('authSubmitText');
+    var emailLabel = document.getElementById('authEmailLabel');
+    var helpP = document.getElementById('authToggleHelp');
+    var errorBox = document.getElementById('authErrorMsg');
+    var logoutBtn = document.getElementById('logoutBtn');
+    var deleteBtn = document.getElementById('deleteAccountBtn');
+
+    // 계정 프로필 드롭다운 엘리먼트
+    var accountTrigger = document.getElementById('accountTriggerBtn');
+    var accountDropdown = document.getElementById('accountDropdownWrap');
+
+    if (accountTrigger && accountDropdown) {
+      accountTrigger.onclick = function (e) {
+        e.stopPropagation();
+        var isOpen = accountDropdown.classList.contains('open');
+        accountDropdown.classList.toggle('open');
+        accountTrigger.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+      };
+
+      document.addEventListener('click', function (e) {
+        if (!accountDropdown.contains(e.target)) {
+          accountDropdown.classList.remove('open');
+          accountTrigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      if (errorBox) {
+        errorBox.hidden = true;
+        errorBox.textContent = '';
+        errorBox.className = 'auth-msg-box';
+      }
+
+      if (mode === 'login') {
+        if (toggleWrap) toggleWrap.classList.remove('signup-mode');
+        if (tabLogin) tabLogin.classList.add('active');
+        if (tabSignup) tabSignup.classList.remove('active');
+        if (submitText) submitText.textContent = '다이어리 열기';
+        if (emailLabel) emailLabel.textContent = '계정 이메일';
+        if (helpP) {
+          helpP.innerHTML = '아직 다이어리 계정이 없으신가요? <button type="button" id="authSwitchModeBtn" class="auth-link-btn hp-link">새 계정 만들기</button>';
+          var newSwitch = document.getElementById('authSwitchModeBtn');
+          if (newSwitch) newSwitch.onclick = function () { setAuthMode('signup'); };
+        }
+      } else {
+        if (toggleWrap) toggleWrap.classList.add('signup-mode');
+        if (tabLogin) tabLogin.classList.remove('active');
+        if (tabSignup) tabSignup.classList.add('active');
+        if (submitText) submitText.textContent = '새 다이어리 등록하기';
+        if (emailLabel) emailLabel.textContent = '가입할 이메일';
+        if (helpP) {
+          helpP.innerHTML = '이미 계정이 있으신가요? <button type="button" id="authSwitchModeBtn" class="auth-link-btn hp-link">로그인하기</button>';
+          var newSwitch2 = document.getElementById('authSwitchModeBtn');
+          if (newSwitch2) newSwitch2.onclick = function () { setAuthMode('login'); };
+        }
+      }
+    }
+
+    if (tabLogin) tabLogin.onclick = function () { setAuthMode('login'); };
+    if (tabSignup) tabSignup.onclick = function () { setAuthMode('signup'); };
+    if (switchBtn) switchBtn.onclick = function () { setAuthMode('signup'); };
+
+    // 폼 제출 (로그인 또는 회원가입)
+    if (authForm) {
+      authForm.onsubmit = async function (e) {
+        e.preventDefault();
+        var emailInput = document.getElementById('authEmail');
+        var pwInput = document.getElementById('authPassword');
+        var email = emailInput ? emailInput.value.trim() : '';
+        var pw = pwInput ? pwInput.value : '';
+
+        if (!email || !pw) {
+          showAuthError('이메일과 비밀번호를 모두 입력해주세요.');
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.7';
+        }
+
+        try {
+          if (authMode === 'login') {
+            var res = await Auth.signIn(email, pw);
+            if (!res.success) {
+              showAuthError(res.message);
+            } else {
+              if (errorBox) errorBox.hidden = true;
+
+              // ★ [3D 북 오픈 애니메이션 시퀀스] ★
+              var buckle = document.getElementById('lockBuckle');
+              var frontCover = document.getElementById('diaryFrontCover');
+              var appEl = document.getElementById('app');
+              var diaryWrapper = document.getElementById('diaryMainWrapper');
+              var authScreen = document.getElementById('authScreen');
+              var userProfile = document.getElementById('userProfileArea');
+              var emailText = document.getElementById('userEmailText');
+              var dropdownEmail = document.getElementById('dropdownUserEmail');
+
+              // 1. 자물쇠 풀림
+              if (buckle) buckle.classList.add('unlocked');
+              U.toast('다이어리 자물쇠가 풀렸습니다!', 'success');
+
+              // 2. 3D 앞표지 책장 열림
+              setTimeout(function () {
+                if (frontCover) frontCover.classList.add('opening');
+              }, 200);
+
+              // 3. 다이어리 본문 활짝 펼쳐짐
+              setTimeout(function () {
+                if (authScreen) authScreen.hidden = true;
+                if (appEl) {
+                  appEl.hidden = false;
+                  appEl.classList.remove('auth-mode');
+                }
+                if (diaryWrapper) diaryWrapper.hidden = false;
+                if (userProfile) userProfile.style.display = 'inline-flex';
+                if (emailText) emailText.textContent = res.user.email || '내 다이어리';
+                if (dropdownEmail) dropdownEmail.textContent = res.user.email || '내 계정';
+                if (frontCover) frontCover.classList.remove('opening');
+                if (buckle) buckle.classList.remove('unlocked');
+                if (pwInput) pwInput.value = '';
+
+                loadPlans();
+              }, 700);
+            }
+          } else {
+            var resSign = await Auth.signUp(email, pw);
+            if (!resSign.success) {
+              showAuthError(resSign.message);
+            } else {
+              U.toast('회원가입이 완료되었습니다!', 'success');
+              if (resSign.user) {
+                // 자동 로그인 세션 발급 시 즉시 북 오픈 연출
+                var buckle2 = document.getElementById('lockBuckle');
+                var frontCover2 = document.getElementById('diaryFrontCover');
+                var appEl2 = document.getElementById('app');
+                var diaryWrapper2 = document.getElementById('diaryMainWrapper');
+                var authScreen2 = document.getElementById('authScreen');
+                var userProfile2 = document.getElementById('userProfileArea');
+                var emailText2 = document.getElementById('userEmailText');
+                var dropdownEmail2 = document.getElementById('dropdownUserEmail');
+
+                if (buckle2) buckle2.classList.add('unlocked');
+                setTimeout(function () {
+                  if (frontCover2) frontCover2.classList.add('opening');
+                }, 200);
+
+                setTimeout(function () {
+                  if (authScreen2) authScreen2.hidden = true;
+                  if (appEl2) {
+                    appEl2.hidden = false;
+                    appEl2.classList.remove('auth-mode');
+                  }
+                  if (diaryWrapper2) diaryWrapper2.hidden = false;
+                  if (userProfile2) userProfile2.style.display = 'inline-flex';
+                  if (emailText2) emailText2.textContent = resSign.user.email || '내 다이어리';
+                  if (dropdownEmail2) dropdownEmail2.textContent = resSign.user.email || '내 계정';
+                  if (frontCover2) frontCover2.classList.remove('opening');
+                  if (buckle2) buckle2.classList.remove('unlocked');
+                  if (pwInput) pwInput.value = '';
+                  loadPlans();
+                }, 700);
+              } else {
+                setAuthMode('login');
+                showAuthSuccess('가입이 완료되었습니다. 로그인해주세요.');
+              }
+            }
+          }
+        } catch (err) {
+          showAuthError('인증 처리 중 오류가 발생했습니다: ' + (err.message || err));
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '';
+          }
+        }
+      };
+    }
+
+    function showAuthError(msg) {
+      if (errorBox) {
+        errorBox.hidden = false;
+        errorBox.className = 'auth-msg-box error';
+        errorBox.textContent = msg;
+      }
+    }
+
+    function showAuthSuccess(msg) {
+      if (errorBox) {
+        errorBox.hidden = false;
+        errorBox.className = 'auth-msg-box success';
+        errorBox.textContent = msg;
+      }
+    }
+
+    // 로그아웃 (T07-C96)
+    if (logoutBtn) {
+      logoutBtn.onclick = async function () {
+        if (accountDropdown) accountDropdown.classList.remove('open');
+        selectedPlanId = null;
+        localStorage.removeItem('pds_vlog_entries');
+        await Auth.signOut();
+        U.toast('다이어리가 안전하게 잠겼습니다 (로그아웃).', 'info');
+      };
+    }
+
+    // 회원 탈퇴 및 자료 영구 삭제 (T07-C134) - 브라우저 기본 confirm 대신 다이어리 감성 커스텀 모달 적용
+    if (deleteBtn) {
+      deleteBtn.onclick = function () {
+        if (accountDropdown) accountDropdown.classList.remove('open');
+        var user = Auth.getUser();
+        if (!user) return;
+
+        var html = '<div class="confirm-modal-box delete-account-dialog">' +
+          '<div class="delete-dialog-badge">' +
+          '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>' +
+          '<line x1="12" y1="9" x2="12" y2="13"/>' +
+          '<line x1="12" y1="17" x2="12.01" y2="17"/>' +
+          '</svg>' +
+          '</div>' +
+          '<h3 class="delete-dialog-title">회원 탈퇴 및 데이터 영구 파기 안내</h3>' +
+          '<div class="delete-dialog-card">' +
+          '<p class="delete-dialog-desc">' +
+          '계정을 삭제하면 지금까지 작성하신 <strong>모든 계획, 할 일, 실행 기록, 사진 일기</strong>가 데이터베이스에서 즉시 영구적으로 삭제되며 다시는 복구할 수 없습니다.' +
+          '</p>' +
+          '</div>' +
+          '<p class="delete-dialog-prompt">정말로 계정을 완전히 삭제하시겠습니까?</p>' +
+          '<div class="confirm-buttons delete-dialog-actions">' +
+          '<button class="btn-outline btn-delete-cancel" type="button" onclick="App.closeModal()">취소</button>' +
+          '<button class="btn-danger btn-delete-confirm" id="btnExecuteDeleteAccount" type="button">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="3 6 5 6 21 6"/>' +
+          '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
+          '</svg><span>확인 (완전 삭제)</span>' +
+          '</button>' +
+          '</div>' +
+          '</div>';
+
+        openModal('계정 탈퇴 확인', html);
+
+        var btnExecute = document.getElementById('btnExecuteDeleteAccount');
+        if (btnExecute) {
+          btnExecute.onclick = async function () {
+            btnExecute.disabled = true;
+            btnExecute.innerHTML = '<span>삭제 처리 중...</span>';
+            var res = await Auth.deleteAccount();
+            closeModal();
+            if (res.success) {
+              U.toast('계정과 모든 다이어리 기록이 안전하게 영구 삭제되었습니다.', 'info');
+            } else {
+              U.toast('탈퇴 처리 중 오류: ' + res.message, 'error');
+            }
+          };
+        }
+      };
+    }
   }
 
   /* ========== 탭 전환 (책 중앙 제본선 중심 3D 책장 넘김) ========== */
@@ -194,6 +521,13 @@
         if (e.target === this) closeModal();
       });
     }
+    // ESC 키로 열린 모달 즉시 닫기 (접근성 개선)
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        var m = document.getElementById('modal');
+        if (m && !m.hidden) closeModal();
+      }
+    });
   }
 
   function openModal(title, html) {
@@ -503,16 +837,19 @@
       CustomSelect.sync(monthSel);
     }
 
-    // 1. 해당 월의 모든 할 일(Todos) 및 계획(Plans) 동시 로드
+    // 1. 해당 월의 모든 할 일(Todos), 계획(Plans), 사진일기(Vlogs) 비동기 로드 (Supabase 전용)
     var allTodos = [];
     var allPlans = [];
+    var vlogEntries = [];
     try {
-      var [todosRes, plansRes] = await Promise.all([
+      var [todosRes, plansRes, vlogsData] = await Promise.all([
         db.from('todos').select('*'),
-        db.from('plans').select('*')
+        db.from('plans').select('*'),
+        (typeof Vlog !== 'undefined' ? Vlog.list() : Promise.resolve([]))
       ]);
       allTodos = todosRes.data || [];
       allPlans = plansRes.data || [];
+      vlogEntries = vlogsData || [];
     } catch (e) {
       console.warn('캘린더 데이터 조회 오류:', e);
     }
@@ -529,8 +866,6 @@
       var pDate = prevLastDate - i;
       cellsHtml += '<div class="cal-cell other-month"><div class="cal-date-num">' + pDate + '</div></div>';
     }
-
-    var vlogEntries = getVlogEntries();
 
     // 이번 달 날짜들
     for (var date = 1; date <= lastDate; date++) {
@@ -627,131 +962,6 @@
     }
   }
 
-  function getVlogEntries() {
-    var raw = localStorage.getItem('pds_vlog_entries');
-    if (raw) {
-      try {
-        var parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          parsed.forEach(function (it) {
-            if (it && it.photos) {
-              it.photos = it.photos.filter(function (p) { return typeof p === 'string' && p.trim().length > 0; });
-              if (it.photos.length === 0) {
-                it.photos = ['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=900&q=80'];
-              }
-            }
-          });
-          return parsed;
-        }
-      } catch (e) { }
-    }
-    // 5번 이미지와 동일한 감성 샘플 포스트 (다중 사진 캐러셀 지원)
-    return [
-      {
-        id: 'sample-vlog-1',
-        date: U.todaySeoul(),
-        dayOfWeek: 'mon',
-        title: 'Today is better than tomorrow.',
-        // 다중 이미지 배열 (캐러셀 슬라이더 지원!)
-        photos: [
-          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=900&q=80',
-          'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=900&q=80',
-          'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80'
-        ],
-        content: '내일이 오늘보다 좋지 않을 거라는 뜻이 아니라, 내일을 기다리는 대신 오늘을 살라는 말.\n\n# 평범한 일상을 특별히 소중하게 여기며 내일보다 좋은 오늘을 살아가고 싶다.\n# 일상을 대하는 태도가 결국 인생을 대하는 태도이다.\n<평일도 인생이니까 / 김신지>'
-      }
-    ];
-  }
-
-  function saveVlogEntries(list) {
-    localStorage.setItem('pds_vlog_entries', JSON.stringify(list));
-  }
-
-  /* Supabase Storage 미디어 업로드 헬퍼 */
-  async function uploadMediaToSupabase(file) {
-    if (!file) return null;
-    try {
-      var ext = (file.name && file.name.split('.').pop()) || 'png';
-      var cleanName = 'vlog_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + ext;
-      var res = await db.storage.from('vlog-media').upload(cleanName, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-      if (res && res.data) {
-        var pub = db.storage.from('vlog-media').getPublicUrl(cleanName);
-        if (pub && pub.data && pub.data.publicUrl) {
-          return pub.data.publicUrl;
-        }
-      }
-    } catch (err) {
-      console.warn('Supabase storage upload fallback to dataURL:', err);
-    }
-    // Storage 버킷 미생성 시에도 끊김 없이 동작하도록 DataURL로 안전 폴백
-    return new Promise(function (resolve) {
-      var reader = new FileReader();
-      reader.onload = function (evt) { resolve(evt.target.result); };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  /* Supabase vlog_entries DB 및 로컬 동기화 */
-  async function fetchVlogEntriesFromDb() {
-    try {
-      var res = await db.from('vlog_entries').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
-      if (res && res.data && res.data.length > 0) {
-        var mapped = res.data.map(function (it) {
-          return {
-            id: it.id,
-            date: it.date,
-            dayOfWeek: it.day_of_week || 'mon',
-            title: it.title,
-            photos: Array.isArray(it.photos) ? it.photos : [],
-            content: it.content
-          };
-        });
-        saveVlogEntries(mapped);
-        return mapped;
-      }
-    } catch (e) {
-      console.warn('Supabase vlog_entries fetch fallback to local:', e);
-    }
-    return getVlogEntries();
-  }
-
-  async function persistVlogEntryToDb(entry) {
-    try {
-      var payload = {
-        title: entry.title,
-        date: entry.date,
-        day_of_week: entry.dayOfWeek || 'mon',
-        photos: entry.photos || [],
-        content: entry.content
-      };
-      var isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entry.id);
-      if (isUuid) {
-        await db.from('vlog_entries').update(payload).eq('id', entry.id);
-      } else {
-        var res = await db.from('vlog_entries').insert(payload).select().single();
-        if (res && res.data && res.data.id) {
-          entry.id = res.data.id;
-        }
-      }
-    } catch (e) {
-      console.warn('Supabase vlog save fallback to local:', e);
-    }
-  }
-
-  async function deleteVlogEntryFromDb(id) {
-    try {
-      var isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-      if (isUuid) {
-        await db.from('vlog_entries').delete().eq('id', id);
-      }
-    } catch (e) {
-      console.warn('Supabase vlog delete fallback to local:', e);
-    }
-  }
-
   function formatVlogDiaryText(rawText) {
     if (!rawText) return '';
     var lines = rawText.split('\n');
@@ -811,7 +1021,7 @@
     var el = document.getElementById('vlogList');
     if (!el) return;
 
-    var list = await fetchVlogEntriesFromDb();
+    var list = (typeof Vlog !== 'undefined') ? await Vlog.list() : [];
     if (!list || list.length === 0) {
       el.innerHTML = '<div class="empty-state">' +
         '<div class="empty-icon">' + Icons.camera(36) + '</div>' +
@@ -838,11 +1048,8 @@
       }).join(' ');
 
       // 다중 사진/영상 캐러셀 렌더링
-      var rawPhotos = item.photos || (item.photoUrl ? [item.photoUrl] : []);
+      var rawPhotos = item.photos || [];
       var photos = rawPhotos.filter(function (p) { return typeof p === 'string' && p.trim().length > 0; });
-      if (photos.length === 0) {
-        photos = ['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=900&q=80'];
-      }
       var hasMultiple = photos.length > 1;
       var curIdx = carouselStates[item.id] || 0;
       if (curIdx >= photos.length) curIdx = 0;
@@ -908,7 +1115,7 @@
       '</div>' +
       '<div class="form-group">' +
       '<label>일기 제목 (한 줄 문구)</label>' +
-      '<input class="input" name="title" value="' + (isEdit ? U.esc(existingItem.title) : '') + '" placeholder="예: Today is better than tomorrow." required>' +
+      '<input class="input" name="title" value="' + (isEdit ? U.esc(existingItem.title) : '') + '" placeholder="예: 오늘 하루를 기억하며" required>' +
       '</div>' +
       '<div class="form-row">' +
       '<div class="form-group">' +
@@ -954,65 +1161,66 @@
     if (form) {
       form.onsubmit = async function (e) {
         e.preventDefault();
-        var fd = new FormData(this);
-        var title = fd.get('title');
-        var date = fd.get('date');
-        var dayOfWeek = fd.get('dayOfWeek');
-        var content = fd.get('content');
-        var urlsText = fd.get('photoUrlsText') || '';
-
-        var photos = urlsText.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
-
-        var uploadedFileUrls = [];
-        var fileInput = document.getElementById('vlogFileInput');
-        if (fileInput && fileInput.files && fileInput.files.length > 0) {
-          var files = Array.from(fileInput.files);
-          var uploadPromises = files.map(function (file) {
-            return uploadMediaToSupabase(file);
-          });
-          uploadedFileUrls = (await Promise.all(uploadPromises)).filter(Boolean);
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = '저장 중...';
         }
 
-        var entryId = (form.dataset.editId) || ('vlog-' + Date.now());
-        var existingPhotos = [];
-        if (form.dataset.editId) {
-          var oldEntry = getVlogEntries().find(function (it) { return it.id === form.dataset.editId; });
-          if (oldEntry && oldEntry.photos) {
-            existingPhotos = oldEntry.photos.filter(function (p) { return p && (p.startsWith('http') || p.startsWith('data:')); });
+        try {
+          var fd = new FormData(this);
+          var title = fd.get('title');
+          var date = fd.get('date');
+          var dayOfWeek = fd.get('dayOfWeek');
+          var content = fd.get('content');
+          var urlsText = fd.get('photoUrlsText') || '';
+
+          var photos = urlsText.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+
+          var uploadedFileUrls = [];
+          var fileInput = document.getElementById('vlogFileInput');
+          if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            var files = Array.from(fileInput.files);
+            var uploadPromises = files.map(function (file) {
+              return Vlog.uploadMedia(file);
+            });
+            uploadedFileUrls = (await Promise.all(uploadPromises)).filter(Boolean);
+          }
+
+          var existingPhotos = [];
+          if (isEdit && existingItem && existingItem.photos) {
+            existingPhotos = existingItem.photos.filter(function (p) { return p && (p.startsWith('http') || p.startsWith('data:')); });
+          }
+
+          var allPhotos = photos.concat(existingPhotos).concat(uploadedFileUrls).filter(Boolean);
+
+          var entryData = {
+            title: title,
+            date: date,
+            dayOfWeek: dayOfWeek,
+            photos: allPhotos,
+            content: content
+          };
+
+          if (isEdit && existingItem && existingItem.id) {
+            await Vlog.update(existingItem.id, entryData);
+            U.toast('포토 일기가 수정되었습니다.', 'success');
+          } else {
+            await Vlog.create(entryData);
+            U.toast('새 포토 일기가 저장되었습니다.', 'success');
+          }
+
+          closeModal();
+          await loadVlog();
+          if (currentTab === 'calendar') loadCalendar();
+        } catch (err) {
+          console.error(err);
+          U.toast('저장 실패: ' + err.message, 'error');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = isEdit ? '수정 내용 저장하기' : '캐러셀 다이어리에 붙이기';
           }
         }
-
-        var allPhotos = photos.concat(existingPhotos).concat(uploadedFileUrls).filter(Boolean);
-        if (allPhotos.length === 0) {
-          allPhotos = ['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'];
-        }
-
-        var entry = {
-          id: entryId,
-          date: date,
-          dayOfWeek: dayOfWeek,
-          title: title,
-          photos: allPhotos,
-          content: content
-        };
-
-        // 1. Supabase DB 영구 저장
-        await persistVlogEntryToDb(entry);
-
-        // 2. 로컬 캐시 동기화
-        var list = getVlogEntries();
-        if (form.dataset.editId) {
-          var idx = list.findIndex(function (it) { return it.id === form.dataset.editId; });
-          if (idx !== -1) list[idx] = entry;
-          else list.unshift(entry);
-        } else {
-          list.unshift(entry);
-        }
-        saveVlogEntries(list);
-        U.toast(form.dataset.editId ? '포토 일기가 수정되었습니다.' : '다중 캐러셀 다이어리 일기가 저장되었습니다.', 'success');
-        closeModal();
-        await loadVlog();
-        if (currentTab === 'calendar') loadCalendar();
       };
     }
   }
@@ -1081,8 +1289,11 @@
           '<span class="meta-hours">' + Icons.clock(13) + '예상 ' + (t.estimated_hours || 0) + 'h</span>' +
           '</div>' +
           '<div class="card-actions">' +
-          (isDone
+          (t.status === '완료'
             ? '<button class="btn-revert" type="button" onclick="App.revertTodo(\'' + t.id + '\')">' + Icons.rotateCcw(14) + ' 진행 중으로 되돌리기</button>'
+            : t.status === '보류'
+            ? '<button class="btn-revert" type="button" onclick="App.revertTodo(\'' + t.id + '\')">' + Icons.play(13) + ' 진행 재개</button>' +
+              '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>'
             : '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>') +
           '<button class="btn-outline" type="button" onclick="App.addRecord(\'' + t.id + '\')">' + Icons.play(13) + ' 실행 기록</button>' +
           '<button class="btn-outline" type="button" onclick="App.editTodo(\'' + t.id + '\')">' + Icons.edit(13) + ' 수정</button>' +
@@ -1110,6 +1321,18 @@
       '<label>마감일</label>' +
       '<input class="input" type="date" name="due_date" value="' + dDate + '">' +
       '</div>' +
+      '<div class="form-group">' +
+      '<label>상태</label>' +
+      '<div class="select-wrapper">' +
+      '<select class="select" name="status">' +
+      '<option value="진행중"' + (!todo || todo.status === '진행중' ? ' selected' : '') + '>진행중</option>' +
+      '<option value="보류"' + (todo && todo.status === '보류' ? ' selected' : '') + '>보류</option>' +
+      '<option value="완료"' + (todo && todo.status === '완료' ? ' selected' : '') + '>완료</option>' +
+      '</select>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '<div class="form-row">' +
       '<div class="form-group">' +
       '<label>우선순위</label>' +
       '<div class="select-wrapper">' +
@@ -1584,49 +1807,56 @@
         U.toast('실행 기록 삭제 실패: ' + err.message, 'error');
       }
     },
-    editVlog: function (id) {
-      var list = getVlogEntries();
-      var item = list.find(function (it) { return it.id === id; });
-      if (item) {
-        showVlogForm(item);
-        var form = document.getElementById('vlogForm');
-        if (form) form.dataset.editId = item.id;
+    editVlog: async function (id) {
+      try {
+        var item = await Vlog.get(id);
+        if (item) {
+          showVlogForm(item);
+        } else {
+          U.toast('해당 일기를 찾을 수 없습니다.', 'error');
+        }
+      } catch (err) {
+        U.toast('일기 불러오기 실패: ' + err.message, 'error');
       }
     },
     deleteVlog: async function (id) {
-      await deleteVlogEntryFromDb(id);
-      var list = getVlogEntries().filter(function (it) { return it.id !== id; });
-      saveVlogEntries(list);
-      U.toast('포토 일기가 삭제되었습니다.', 'success');
-      await loadVlog();
-      if (currentTab === 'calendar') loadCalendar();
+      if (!confirm('정말로 이 포토 일기를 삭제하시겠습니까?')) return;
+      try {
+        await Vlog.remove(id);
+        U.toast('포토 일기가 삭제되었습니다.', 'success');
+        await loadVlog();
+        if (currentTab === 'calendar') loadCalendar();
+      } catch (err) {
+        U.toast('삭제 실패: ' + err.message, 'error');
+      }
     },
     /* 캐러셀 네비게이션 */
     carouselNext: function (id) {
-      var list = getVlogEntries();
-      var item = list.find(function (it) { return it.id === id; });
-      if (!item) return;
-      var photos = item.photos || (item.photoUrl ? [item.photoUrl] : []);
+      var card = document.getElementById('vlogCard_' + id);
+      if (!card) return;
+      var slides = card.querySelectorAll('.carousel-slide');
+      var total = slides.length || 1;
       var curIdx = carouselStates[id] || 0;
-      curIdx = (curIdx + 1) % photos.length;
+      curIdx = (curIdx + 1) % total;
       carouselStates[id] = curIdx;
-      App.updateCarouselUI(id, curIdx, photos.length);
+      App.updateCarouselUI(id, curIdx, total);
     },
     carouselPrev: function (id) {
-      var list = getVlogEntries();
-      var item = list.find(function (it) { return it.id === id; });
-      if (!item) return;
-      var photos = item.photos || (item.photoUrl ? [item.photoUrl] : []);
+      var card = document.getElementById('vlogCard_' + id);
+      if (!card) return;
+      var slides = card.querySelectorAll('.carousel-slide');
+      var total = slides.length || 1;
       var curIdx = carouselStates[id] || 0;
-      curIdx = (curIdx - 1 + photos.length) % photos.length;
+      curIdx = (curIdx - 1 + total) % total;
       carouselStates[id] = curIdx;
-      App.updateCarouselUI(id, curIdx, photos.length);
+      App.updateCarouselUI(id, curIdx, total);
     },
     carouselGoTo: function (id, idx) {
+      var card = document.getElementById('vlogCard_' + id);
+      if (!card) return;
+      var slides = card.querySelectorAll('.carousel-slide');
+      var total = slides.length || 1;
       carouselStates[id] = idx;
-      var list = getVlogEntries();
-      var item = list.find(function (it) { return it.id === id; });
-      var total = item && item.photos ? item.photos.length : 1;
       App.updateCarouselUI(id, idx, total);
     },
     updateCarouselUI: function (id, idx, total) {
