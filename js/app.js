@@ -1,7 +1,15 @@
 /* === app.js — 메인 컨트롤러 (캘린더 연도선택/계획스티커, Vlog 다중 캐러셀, 3D 책장넘김) === */
 
 (function () {
-  var currentTab = 'plans';
+  var currentTab = (function () {
+    try {
+      var saved = localStorage.getItem('pds_active_tab');
+      if (saved && ['plans', 'calendar', 'todos', 'records', 'vlog', 'review'].indexOf(saved) !== -1) {
+        return saved;
+      }
+    } catch (e) { }
+    return 'plans';
+  })();
   var selectedPlanId = null;
 
   // 캘린더 상태 (년/월)
@@ -26,11 +34,14 @@
     bindAuth();
     CustomSelect.enhanceAll(document);
 
+    // [FOUC 방지] 저장된 활성 탭 UI 즉각 동기화 (DOM 클래스 및 하단 쪽수)
+    syncTabUI(currentTab);
+
     // [과제 7] 인증 세션 감지 및 초기화 (T07-C03, T07-C91~C100)
     if (typeof Auth !== 'undefined') {
       Auth.init(handleAuthState);
     } else {
-      loadPlans();
+      switchTab(currentTab, true);
     }
   }
 
@@ -104,6 +115,8 @@
     updateProfileUI(user);
 
     if (user) {
+      document.documentElement.classList.add('has-auth-session');
+      document.documentElement.classList.remove('is-guest-session');
       // 1. 로그인 성공 상태: 오픈된 다이어리 내지 스타일 복원
       if (authScreen) authScreen.hidden = true;
       if (appEl) {
@@ -113,15 +126,13 @@
       if (diaryWrapper) diaryWrapper.hidden = false;
       if (userProfile) userProfile.style.display = 'inline-flex';
 
-      // 사용자 데이터 로드
-      loadPlans();
-      if (currentTab === 'calendar') loadCalendar();
-      else if (currentTab === 'todos') loadTodos();
-      else if (currentTab === 'records') loadRecords();
-      else if (currentTab === 'vlog') loadVlog();
-      else if (currentTab === 'review') loadReview();
+      // 새로고침 시 이전에 보던 탭으로 무결점 즉시 로드 (플립 애니메이션 스킵)
+      switchTab(currentTab, true);
     } else {
       // 2. 비로그인 상태: 오픈된 프레임 숨기고 완전히 닫힌 다이어리 표지만 노출
+      document.documentElement.classList.remove('has-auth-session');
+      document.documentElement.classList.add('is-guest-session');
+      document.documentElement.removeAttribute('data-initial-tab');
       selectedPlanId = null;
       localStorage.removeItem('pds_vlog_entries');
       if (authScreen) authScreen.hidden = false;
@@ -402,12 +413,12 @@
         errorBox.className = 'auth-msg-box error lockout';
         errorBox.innerHTML =
           '<div class="lockout-badge-head">' +
-            '<span class="lockout-icon">⚠️</span>' +
-            '<strong class="lockout-head-title">보안을 위해 로그인이 일시 제한됩니다</strong>' +
+          '<span class="lockout-icon">⚠️</span>' +
+          '<strong class="lockout-head-title">보안을 위해 로그인이 일시 제한됩니다</strong>' +
           '</div>' +
           '<div class="lockout-desc-body">' +
-            '비밀번호 5회 연속 불일치로 다이어리를 일시 보호 중입니다.<br>' +
-            '<span class="lockout-countdown-wrap"><strong class="lockout-timer-val">' + sec + '초</strong> 후 다시 시도해 주세요.</span>' +
+          '비밀번호 5회 연속 불일치로 다이어리를 일시 보호 중입니다.<br>' +
+          '<span class="lockout-countdown-wrap"><strong class="lockout-timer-val">' + sec + '초</strong> 후 다시 시도해 주세요.</span>' +
           '</div>';
       }
     }
@@ -443,6 +454,10 @@
         if (accountDropdown) accountDropdown.classList.remove('open');
         selectedPlanId = null;
         localStorage.removeItem('pds_vlog_entries');
+        localStorage.removeItem('pds_active_tab');
+        document.documentElement.classList.remove('has-auth-session');
+        document.documentElement.classList.add('is-guest-session');
+        document.documentElement.removeAttribute('data-initial-tab');
         await Auth.signOut();
         U.toast('다이어리가 안전하게 잠겼습니다 (로그아웃).', 'info');
       };
@@ -491,6 +506,7 @@
             var res = await Auth.deleteAccount();
             closeModal();
             if (res.success) {
+              localStorage.removeItem('pds_active_tab');
               U.toast('계정과 모든 다이어리 기록이 안전하게 영구 삭제되었습니다.', 'info');
             } else {
               U.toast('탈퇴 처리 중 오류: ' + res.message, 'error');
@@ -540,18 +556,38 @@
     }, 520);
   }
 
-  function switchTab(name) {
-    if (name === currentTab) return;
+  function switchTab(name, skipAnimation) {
+    if (name === currentTab && !skipAnimation) return;
 
     var oldName = currentTab;
     var oldIndex = TAB_ORDER.indexOf(oldName);
     var newIndex = TAB_ORDER.indexOf(name);
     var isForward = newIndex >= oldIndex;
 
-    // 실제 양장본 감성의 부드러운 3D 페이퍼 컬(Page Curl) 책 넘김 애니메이션 즉시 가동
-    triggerPageFlip(isForward);
+    // 실제 양장본 감성의 부드러운 3D 페이퍼 컬(Page Curl) 책 넘김 애니메이션 (초기 복원 시에는 스킵)
+    if (!skipAnimation) {
+      triggerPageFlip(isForward);
+    }
 
     currentTab = name;
+    try {
+      localStorage.setItem('pds_active_tab', name);
+    } catch (e) { }
+    document.documentElement.setAttribute('data-initial-tab', name);
+
+    syncTabUI(name);
+
+    // 애니메이션 생략 시에는 데이터 로딩 즉시 호출, 애니메이션 시에는 420ms 후 로딩
+    if (skipAnimation) {
+      renderTabContent(name);
+    } else {
+      setTimeout(function () {
+        renderTabContent(name);
+      }, 420);
+    }
+  }
+
+  function syncTabUI(name) {
     document.querySelectorAll('.tab').forEach(function (t) {
       t.classList.toggle('active', t.dataset.tab === name);
     });
@@ -563,16 +599,11 @@
     if (lEl) lEl.textContent = folios[0];
     if (rEl) rEl.textContent = folios[1];
 
-    // 새 패널은 책이 말려 넘어가는 밑장에 즉시 활성화되어 컬 뒤로 자연스럽게 노출
+    // 새 패널 활성화
     document.querySelectorAll('.tab-panel').forEach(function (p) {
       var isActive = p.id === 'tab' + capitalize(name);
       p.classList.toggle('active', isActive);
     });
-
-    // GPU 애니메이션이 부드럽게 끝나는 시점에 데이터 로딩을 수행하여 60fps 무결점 보장
-    setTimeout(function () {
-      renderTabContent(name);
-    }, 420);
   }
 
   function renderTabContent(name) {

@@ -15,9 +15,116 @@
     href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- 세션 및 탭 상태 즉각 복원 (새로고침 시 로그인 화면 및 이전 화면 깜빡임 FOUC 원천 방지) -->
+  <script>
+    (function () {
+      try {
+        var hasSession = false;
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf('sb-') === 0 && k.indexOf('-auth-token') !== -1) {
+            var raw = localStorage.getItem(k);
+            if (raw && (raw.indexOf('access_token') !== -1 || raw.indexOf('"user"') !== -1)) {
+              hasSession = true;
+              break;
+            }
+          }
+        }
+        var savedTab = localStorage.getItem('pds_active_tab') || 'plans';
+        var docEl = document.documentElement;
+        if (hasSession) {
+          docEl.classList.add('has-auth-session');
+          docEl.setAttribute('data-initial-tab', savedTab);
+        } else {
+          docEl.classList.add('is-guest-session');
+        }
+
+        var savedTheme = localStorage.getItem('pds_theme');
+        if (savedTheme === 'dark') {
+          docEl.classList.add('candlelight-theme');
+        }
+      } catch (e) { }
+    })();
+  </script>
+  <style id="authFoucPreventStyle">
+    /* 0ms 초기 렌더링 즉시 적용: 세션 보유 시 로그인 표지 숨김 & 메인 앱 노출 */
+    html.has-auth-session #authScreen {
+      display: none !important;
+    }
+
+    html.has-auth-session #app {
+      display: block !important;
+    }
+
+    html.is-guest-session #authScreen {
+      display: flex !important;
+    }
+
+    html.is-guest-session #app {
+      display: none !important;
+    }
+
+    /* 새로고침 시 이전에 보던 활성 탭 즉시 렌더 (기본 계획 탭 깜빡임 방지) */
+    html.has-auth-session[data-initial-tab="calendar"] #tabPlans,
+    html.has-auth-session[data-initial-tab="todos"] #tabPlans,
+    html.has-auth-session[data-initial-tab="records"] #tabPlans,
+    html.has-auth-session[data-initial-tab="vlog"] #tabPlans,
+    html.has-auth-session[data-initial-tab="review"] #tabPlans {
+      display: none !important;
+    }
+
+    html.has-auth-session[data-initial-tab="calendar"] .tab[data-tab="plans"],
+    html.has-auth-session[data-initial-tab="todos"] .tab[data-tab="plans"],
+    html.has-auth-session[data-initial-tab="records"] .tab[data-tab="plans"],
+    html.has-auth-session[data-initial-tab="vlog"] .tab[data-tab="plans"],
+    html.has-auth-session[data-initial-tab="review"] .tab[data-tab="plans"] {
+      color: var(--text3, #8c7b70) !important;
+      background: none !important;
+      border-color: transparent !important;
+      border-top: 1.5px solid transparent !important;
+      box-shadow: none !important;
+    }
+
+    html.has-auth-session[data-initial-tab="calendar"] #tabCalendar {
+      display: block !important;
+    }
+
+    html.has-auth-session[data-initial-tab="todos"] #tabTodos {
+      display: block !important;
+    }
+
+    html.has-auth-session[data-initial-tab="records"] #tabRecords {
+      display: block !important;
+    }
+
+    html.has-auth-session[data-initial-tab="vlog"] #tabVlog {
+      display: block !important;
+    }
+
+    html.has-auth-session[data-initial-tab="review"] #tabReview {
+      display: block !important;
+    }
+
+    html.has-auth-session[data-initial-tab="calendar"] .tab[data-tab="calendar"],
+    html.has-auth-session[data-initial-tab="todos"] .tab[data-tab="todos"],
+    html.has-auth-session[data-initial-tab="records"] .tab[data-tab="records"],
+    html.has-auth-session[data-initial-tab="vlog"] .tab[data-tab="vlog"],
+    html.has-auth-session[data-initial-tab="review"] .tab[data-tab="review"] {
+      color: var(--accent, #7a2021) !important;
+      background: var(--paper, #fbf9f4) !important;
+      border-color: var(--border, #d8cca3) !important;
+      border-top: 3px solid var(--accent, #7a2021) !important;
+      box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.04) !important;
+    }
+  </style>
 </head>
 
 <body>
+  <script>
+    if (document.documentElement.classList.contains('candlelight-theme')) {
+      document.body.classList.add('candlelight-theme');
+    }
+  </script>
   <!-- 오프라인 상태 감지 및 복구 알림 띠 (고도화 요소 1) -->
   <div id="offlineNoticeBanner" class="offline-banner" hidden>
     <div class="offline-banner-content">
