@@ -3537,24 +3537,46 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.6));
 }
 
-/* 캔들라이트 테마 스타일 */
+/* 캔들라이트 다크 테마 글로벌 변수 및 컴포넌트 전체 오버라이드 (완벽한 가독성 보장) */
 body.candlelight-theme {
+  --desk-bg: #0f0a07;
+  --book-cover: #261a11;
+  --book-edge: #382517;
+
+  --paper: #1b130c;
+  --paper-sub: #241910;
+  --paper-active: #20160e;
+
+  --text: #f7efe1;
+  --text-pen: #faf4ea;
+  --text2: #d6c8b4;
+  --text3: #a69680;
+
+  --border: #3d2a1b;
+  --border2: #4d3623;
+
+  --accent: #e07a52;
+  --accent-hover: #f08e67;
+  --accent-light: #2c1a11;
+  --accent-border: #5a3522;
+
   background-color: #120d09 !important;
-  background-image:
+  background-image: 
     radial-gradient(circle at 50% 15%, rgba(212, 175, 55, 0.08) 0%, transparent 65%),
     radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px) !important;
-  color: #e4d7c5 !important;
+  color: #f7efe1 !important;
 }
 
+/* 1. 전체 다이어리 외형 & 북 래퍼 */
 body.candlelight-theme #app {
-  background: #1c150e !important;
+  background: #1a120b !important;
   border-color: #3b2818 !important;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(212, 175, 55, 0.08) !important;
 }
 
 body.candlelight-theme .diary-book-wrapper {
-  background: #1f1710 !important;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5) !important;
+  background: #1d150d !important;
+  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.55) !important;
 }
 
 body.candlelight-theme .diary-grid-texture {
@@ -3562,28 +3584,90 @@ body.candlelight-theme .diary-grid-texture {
   filter: invert(1);
 }
 
+/* 2. 상단 헤더 & 로고 & 헤더 버튼 (흰색 배경 완전 제거 -> 앤틱 서재 톤) */
 body.candlelight-theme .header {
-  border-bottom-color: #382517 !important;
+  background: #17100a !important;
+  border-bottom: 2px solid #3d2a1b !important;
 }
 
-body.candlelight-theme .tab {
+body.candlelight-theme .logo {
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .logo svg {
+  stroke: #d4af37 !important;
+}
+
+body.candlelight-theme .hdr-btn,
+body.candlelight-theme .account-trigger-btn {
   background: #251b12 !important;
+  border-color: #4a3422 !important;
+  color: #dfd0bc !important;
+}
+
+body.candlelight-theme .hdr-btn:hover,
+body.candlelight-theme .account-trigger-btn:hover {
+  background: #362619 !important;
+  border-color: #d4af37 !important;
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .user-email-text {
+  color: #dfd0bc !important;
+}
+
+body.candlelight-theme .user-avatar-badge {
+  background: rgba(212, 175, 55, 0.2) !important;
+  color: #d4af37 !important;
+}
+
+body.candlelight-theme .theme-toggle-btn {
+  background: #271c13 !important;
+  border-color: #4a3422 !important;
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .theme-toggle-btn:hover {
+  background: #362619 !important;
+  border-color: #d4af37 !important;
+}
+
+/* 3. 탭 내비게이션 */
+body.candlelight-theme .tab {
+  background: #241a11 !important;
   color: #9d8b75 !important;
   border-color: #382517 !important;
 }
 
 body.candlelight-theme .tab:hover {
-  color: #e4d7c5 !important;
+  color: #f7efe1 !important;
   background: #2c2016 !important;
 }
 
 body.candlelight-theme .tab.active {
-  background: #1f1710 !important;
+  background: #1d150d !important;
   color: #f7e1b5 !important;
-  border-bottom-color: #1f1710 !important;
+  border-bottom-color: #1d150d !important;
   box-shadow: 0 -3px 12px rgba(212, 175, 55, 0.12) !important;
 }
 
+/* 4. 섹션 타이틀 및 가이드 배너 (내 계획 글자 검은색 투명화 해결) */
+body.candlelight-theme .panel-header h2 {
+  color: #f7efe1 !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+body.candlelight-theme .notice {
+  background: #231910 !important;
+  border-color: #3f2b1b !important;
+  color: #dfd0bc !important;
+}
+
+body.candlelight-theme .notice strong {
+  color: #f5dfb8 !important;
+}
+
+/* 5. 카드류 (계획, 할 일, 실행 기록, 사진 일기) 글씨 선명화 */
 body.candlelight-theme .plan-card,
 body.candlelight-theme .card,
 body.candlelight-theme .vlog-card,
@@ -3591,18 +3675,267 @@ body.candlelight-theme .dash-card,
 body.candlelight-theme .history-item {
   background: #241a12 !important;
   border-color: #3f2b1b !important;
-  color: #ded0bc !important;
+  color: #dfd0bc !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4) !important;
 }
 
+body.candlelight-theme .card-title,
+body.candlelight-theme .plan-title {
+  color: #faf3e8 !important;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.candlelight-theme .card-meta,
+body.candlelight-theme .plan-meta,
+body.candlelight-theme .meta-date,
+body.candlelight-theme .meta-hours,
+body.candlelight-theme .meta-tag {
+  color: #c9b9a4 !important;
+}
+
+/* 성공 기준 및 서브 정보 박스 (형광 화이트 박스 제거 -> 앤틱 서재 양피지) */
+body.candlelight-theme .card-sub-info {
+  background: #2d2016 !important;
+  border-left: 3px solid #d4af37 !important;
+  border-radius: var(--radius-sm);
+  color: #ede2d1 !important;
+}
+
+body.candlelight-theme .card-sub-info .sub-label {
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .card-sub-info.next-info {
+  background: #2c1b12 !important;
+  color: #f08e67 !important;
+  border-left-color: #e07a52 !important;
+}
+
+body.candlelight-theme .card-sub-info.next-info .sub-label {
+  color: #f08e67 !important;
+}
+
+/* 카드 하단 액션 버튼들 (하얀색 버튼 -> 고급 다크 레더 버튼) */
+body.candlelight-theme .card-actions {
+  border-top-color: #382517 !important;
+}
+
+body.candlelight-theme .btn-outline {
+  background: #251b12 !important;
+  border-color: #4a3422 !important;
+  color: #dfd0bc !important;
+}
+
+body.candlelight-theme .btn-outline:hover {
+  background: #362619 !important;
+  border-color: #d4af37 !important;
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .btn-danger {
+  background: rgba(185, 28, 28, 0.22) !important;
+  border-color: #7f1d1d !important;
+  color: #fca5a5 !important;
+}
+
+body.candlelight-theme .btn-danger:hover {
+  background: rgba(185, 28, 28, 0.35) !important;
+  color: #ffffff !important;
+}
+
+body.candlelight-theme .btn-pending-toggle {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  color: #fcd34d !important;
+}
+
+body.candlelight-theme .btn-pending-toggle:hover {
+  background: rgba(245, 158, 11, 0.28) !important;
+  color: #fde68a !important;
+  border-color: #f59e0b !important;
+}
+
 body.candlelight-theme .card-done {
-  background: #1a1612 !important;
-  opacity: 0.75;
+  background: #1a140e !important;
+  opacity: 0.72;
+}
+
+/* 6. 뱃지 가독성 */
+body.candlelight-theme .badge-high {
+  background: rgba(220, 53, 69, 0.22) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(220, 53, 69, 0.4) !important;
+}
+
+body.candlelight-theme .badge-mid {
+  background: rgba(217, 119, 6, 0.22) !important;
+  color: #fde68a !important;
+  border: 1px solid rgba(217, 119, 6, 0.4) !important;
+}
+
+body.candlelight-theme .badge-low {
+  background: rgba(59, 130, 246, 0.22) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+}
+
+body.candlelight-theme .badge-progress {
+  background: rgba(217, 119, 6, 0.22) !important;
+  color: #fde68a !important;
+  border: 1px solid rgba(217, 119, 6, 0.4) !important;
+}
+
+body.candlelight-theme .badge-done {
+  background: rgba(16, 185, 129, 0.22) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
+
+body.candlelight-theme .badge-pending {
+  background: rgba(245, 158, 11, 0.22) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+body.candlelight-theme .badge-tag {
+  background: #2d2015 !important;
+  color: #d6c8b4 !important;
+  border-color: #4a3422 !important;
+}
+
+/* 7. 캘린더 */
+body.candlelight-theme .cal-header-day {
+  color: #d4af37 !important;
+}
+
+body.candlelight-theme .cal-cell {
+  background: #201710 !important;
+  border-color: #382517 !important;
+  color: #d6c6b0 !important;
+}
+
+body.candlelight-theme .cal-cell.other-month {
+  background: #16100a !important;
+  opacity: 0.45;
+}
+
+body.candlelight-theme .cal-date-num {
+  color: #f0e4d0 !important;
+}
+
+body.candlelight-theme .cal-cell.today .cal-date-num {
+  color: #d4af37 !important;
+  font-weight: 700;
+}
+
+/* 8. 실행 기록 */
+body.candlelight-theme .record-item {
+  background: #241a12 !important;
+  border-color: #3f2b1b !important;
+  border-left-color: var(--accent) !important;
+}
+
+body.candlelight-theme .record-time {
+  color: #f0e4d0 !important;
+}
+
+body.candlelight-theme .record-time strong {
+  color: #faf3e8 !important;
+}
+
+body.candlelight-theme .record-hours {
+  background: rgba(224, 122, 82, 0.15) !important;
+  color: #f08e67 !important;
+  border-color: rgba(224, 122, 82, 0.3) !important;
+}
+
+body.candlelight-theme .record-blocker {
+  background: rgba(220, 53, 69, 0.15) !important;
+  border-color: rgba(220, 53, 69, 0.35) !important;
+  color: #fca5a5 !important;
+}
+
+/* 9. 사진·Vlog */
+body.candlelight-theme .vlog-card {
+  background: #221811 !important;
+  border-color: #3d2818 !important;
+}
+
+body.candlelight-theme .vlog-header-stamps {
+  border-bottom-color: #3d2818 !important;
+}
+
+body.candlelight-theme .vlog-title-hash {
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .vlog-paragraph {
+  color: #ede2d1 !important;
+}
+
+body.candlelight-theme .vlog-note-point .note-text {
+  color: #f0e4d0 !important;
+}
+
+body.candlelight-theme .vlog-quote-badge {
+  background: #2c1f15 !important;
+  border-color: #4a3320 !important;
+  color: #f7e2b7 !important;
+}
+
+body.candlelight-theme .vlog-date-badge {
+  color: #e6a760 !important;
+}
+
+body.candlelight-theme .vlog-dw-pill {
+  color: #8c7c68 !important;
+  background: #1b120b !important;
+  border-color: #382517 !important;
+}
+
+body.candlelight-theme .vlog-dw-pill.active {
+  color: #f5dfb8 !important;
+  border-color: #d4af37 !important;
+  background: rgba(212, 175, 55, 0.25) !important;
 }
 
 body.candlelight-theme .vlog-polaroid-frame {
   background: #2a1e15 !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 10. 돌아보기 대시보드 */
+body.candlelight-theme .dash-label {
+  color: #c9b9a4 !important;
+}
+
+body.candlelight-theme .dash-num {
+  color: #faf3e8 !important;
+}
+
+body.candlelight-theme .next-action-header h3 {
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .next-action-guide {
+  color: #c9b9a4 !important;
+}
+
+/* 11. 모달 및 폼 컨트롤 */
+body.candlelight-theme .modal-dialog {
+  background: #201710 !important;
+  border-color: #4a3220 !important;
+  color: #f7efe1 !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(212, 175, 55, 0.1) !important;
+}
+
+body.candlelight-theme .modal-title {
+  color: #f5dfb8 !important;
+}
+
+body.candlelight-theme .form-group label {
+  color: #f5dfb8 !important;
 }
 
 body.candlelight-theme .input,
@@ -3614,11 +3947,12 @@ body.candlelight-theme .custom-select-trigger {
   color: #f0e4d2 !important;
 }
 
-body.candlelight-theme .modal-dialog {
-  background: #201710 !important;
-  border-color: #4a3220 !important;
-  color: #e4d7c5 !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(212, 175, 55, 0.1) !important;
+body.candlelight-theme .input:focus,
+body.candlelight-theme .textarea:focus,
+body.candlelight-theme .select:focus,
+body.candlelight-theme .custom-select-trigger:focus {
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important;
 }
 
 body.candlelight-theme .account-menu-dropdown,
@@ -3638,29 +3972,8 @@ body.candlelight-theme .custom-select-option:hover {
   color: #f5dfb8 !important;
 }
 
-body.candlelight-theme .cal-cell {
-  background: #221811 !important;
-  border-color: #382517 !important;
-  color: #d6c6b0 !important;
-}
-
-body.candlelight-theme .cal-cell.other-month {
-  background: #17110c !important;
-  opacity: 0.45;
-}
-
-body.candlelight-theme .theme-toggle-btn {
-  background: #2c2016;
-  border-color: #4a3320;
-  color: #f5dfb8;
-}
-
-body.candlelight-theme .btn-outline {
-  border-color: #4a3320 !important;
-  color: #dfd1bd !important;
-}
-
-body.candlelight-theme .btn-outline:hover {
-  background: #332317 !important;
-  color: #f7e1b5 !important;
+/* 12. 다이어리 하단 페이지 번호 */
+body.candlelight-theme .diary-book-folio {
+  color: #b5a48e !important;
+  opacity: 0.85 !important;
 }

@@ -313,7 +313,7 @@
       if (lockoutTimer) clearInterval(lockoutTimer);
 
       function updateMsg(s) {
-        showAuthError('⚠️ 보안을 위해 로그인이 ' + s + '초간 일시 제한됩니다. 잠시 후 다시 시도해주세요.');
+        showAuthError('⚠️ 보안을 위해 로그인이 ' + s + '초간 일시 제한됩니다. \n 잠시 후 다시 시도해주세요.');
       }
 
       updateMsg(sec);
@@ -1157,13 +1157,32 @@
     }
 
     el.innerHTML = list.map(function (item) {
-      var d = new Date(item.date);
-      var monthNum = isNaN(d.getMonth()) ? '9' : String(d.getMonth() + 1);
-      var dayNum = isNaN(d.getDate()) ? '27' : String(d.getDate());
+      // 1. 날짜(월 / 일) 및 요일 정확한 파싱
+      var parts = (item.date || '').split('-');
+      var monthNum = '';
+      var dayNum = '';
+      var calculatedDow = '';
+      if (parts.length >= 3) {
+        monthNum = String(parseInt(parts[1], 10));
+        dayNum = String(parseInt(parts[2], 10));
+        var dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        var dowMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        calculatedDow = dowMap[dObj.getDay()];
+      } else {
+        var nowD = new Date();
+        monthNum = String(nowD.getMonth() + 1);
+        dayNum = String(nowD.getDate());
+        var dowMap2 = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        calculatedDow = dowMap2[nowD.getDay()];
+      }
       var dayStr = monthNum + ' / ' + dayNum;
 
+      // 요일 스탬프: 사용자가 지정한 요일이 유효하면 사용하고, 그렇지 않거나 누락된 경우 날짜 기준 정확한 요일 자동 반영
       var daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-      var activeDay = item.dayOfWeek || 'mon';
+      var activeDay = item.dayOfWeek || calculatedDow || 'mon';
+      if (calculatedDow && (!item.dayOfWeek || item.dayOfWeek === 'mon' && calculatedDow !== 'mon')) {
+        activeDay = calculatedDow;
+      }
       var dayPillsHtml = daysOfWeek.map(function (dw) {
         var isCur = (dw === activeDay);
         return '<span class="vlog-dw-pill' + (isCur ? ' active' : '') + '">' + dw + '</span>';
@@ -1231,6 +1250,16 @@
       ? existingItem.photos.filter(function (p) { return !p.startsWith('data:'); }).join('\n')
       : '';
 
+    var initialDate = isEdit ? existingItem.date : U.todaySeoul();
+    var initialDow = (isEdit && existingItem.dayOfWeek) ? existingItem.dayOfWeek : '';
+    if (!initialDow && initialDate && initialDate.includes('-')) {
+      var dParts = initialDate.split('-');
+      var dtObj = new Date(parseInt(dParts[0], 10), parseInt(dParts[1], 10) - 1, parseInt(dParts[2], 10));
+      var dwList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      initialDow = dwList[dtObj.getDay()] || 'mon';
+    }
+    if (!initialDow) initialDow = 'mon';
+
     var html = '<form id="vlogForm">' +
       '<div class="form-tip-banner">' +
       Icons.camera(16) + ' <span>사진이나 영상을 여러 개 선택하면 폴라로이드 <strong>캐러셀 슬라이더</strong>로 만들어집니다.</span>' +
@@ -1242,19 +1271,19 @@
       '<div class="form-row">' +
       '<div class="form-group">' +
       '<label>날짜</label>' +
-      '<input class="input" type="date" name="date" value="' + (isEdit ? existingItem.date : U.todaySeoul()) + '" required>' +
+      '<input class="input" type="date" name="date" value="' + initialDate + '" required>' +
       '</div>' +
       '<div class="form-group">' +
       '<label>요일 스탬프</label>' +
       '<div class="select-wrapper">' +
       '<select class="select" name="dayOfWeek">' +
-      '<option value="mon"' + (isEdit && existingItem.dayOfWeek === 'mon' ? ' selected' : '') + '>월요일 (mon)</option>' +
-      '<option value="tue"' + (isEdit && existingItem.dayOfWeek === 'tue' ? ' selected' : '') + '>화요일 (tue)</option>' +
-      '<option value="wed"' + (isEdit && existingItem.dayOfWeek === 'wed' ? ' selected' : '') + '>수요일 (wed)</option>' +
-      '<option value="thu"' + (isEdit && existingItem.dayOfWeek === 'thu' ? ' selected' : '') + '>목요일 (thu)</option>' +
-      '<option value="fri"' + (isEdit && existingItem.dayOfWeek === 'fri' ? ' selected' : '') + '>금요일 (fri)</option>' +
-      '<option value="sat"' + (isEdit && existingItem.dayOfWeek === 'sat' ? ' selected' : '') + '>토요일 (sat)</option>' +
-      '<option value="sun"' + (isEdit && existingItem.dayOfWeek === 'sun' ? ' selected' : '') + '>일요일 (sun)</option>' +
+      '<option value="mon"' + (initialDow === 'mon' ? ' selected' : '') + '>월요일 (mon)</option>' +
+      '<option value="tue"' + (initialDow === 'tue' ? ' selected' : '') + '>화요일 (tue)</option>' +
+      '<option value="wed"' + (initialDow === 'wed' ? ' selected' : '') + '>수요일 (wed)</option>' +
+      '<option value="thu"' + (initialDow === 'thu' ? ' selected' : '') + '>목요일 (thu)</option>' +
+      '<option value="fri"' + (initialDow === 'fri' ? ' selected' : '') + '>금요일 (fri)</option>' +
+      '<option value="sat"' + (initialDow === 'sat' ? ' selected' : '') + '>토요일 (sat)</option>' +
+      '<option value="sun"' + (initialDow === 'sun' ? ' selected' : '') + '>일요일 (sun)</option>' +
       '</select>' +
       '</div>' +
       '</div>' +
@@ -1281,6 +1310,22 @@
 
     var form = document.getElementById('vlogForm');
     if (form) {
+      // 날짜 변경 시 해당 요일 스탬프로 자동 전환
+      var dateInput = form.querySelector('input[name="date"]');
+      var dowSelect = form.querySelector('select[name="dayOfWeek"]');
+      if (dateInput && dowSelect) {
+        dateInput.addEventListener('change', function () {
+          if (this.value && this.value.includes('-')) {
+            var p = this.value.split('-');
+            var d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+            var dwList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            var autoDw = dwList[d.getDay()];
+            if (autoDw) {
+              dowSelect.value = autoDw;
+            }
+          }
+        });
+      }
       form.onsubmit = async function (e) {
         e.preventDefault();
         var submitBtn = form.querySelector('button[type="submit"]');
