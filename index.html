@@ -56,8 +56,20 @@
       display: block !important;
     }
 
+    html.is-guest-session body {
+      padding: 0 !important;
+    }
+
     html.is-guest-session #authScreen {
       display: flex !important;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 60px 24px !important;
+      box-sizing: border-box !important;
     }
 
     html.is-guest-session #app {
@@ -123,6 +135,9 @@
   <script>
     if (document.documentElement.classList.contains('candlelight-theme')) {
       document.body.classList.add('candlelight-theme');
+    }
+    if (document.documentElement.classList.contains('is-guest-session')) {
+      document.body.classList.add('auth-mode');
     }
   </script>
   <!-- 오프라인 상태 감지 및 복구 알림 띠 (고도화 요소 1) -->

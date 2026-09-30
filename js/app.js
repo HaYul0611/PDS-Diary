@@ -117,6 +117,7 @@
     if (user) {
       document.documentElement.classList.add('has-auth-session');
       document.documentElement.classList.remove('is-guest-session');
+      document.body.classList.remove('auth-mode');
       // 1. 로그인 성공 상태: 오픈된 다이어리 내지 스타일 복원
       if (authScreen) authScreen.hidden = true;
       if (appEl) {
@@ -133,6 +134,7 @@
       document.documentElement.classList.remove('has-auth-session');
       document.documentElement.classList.add('is-guest-session');
       document.documentElement.removeAttribute('data-initial-tab');
+      document.body.classList.add('auth-mode');
       selectedPlanId = null;
       localStorage.removeItem('pds_vlog_entries');
       if (authScreen) authScreen.hidden = false;
