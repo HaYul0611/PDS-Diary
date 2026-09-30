@@ -75,17 +75,68 @@ var Review = {
     };
   },
 
-  /* 드릴다운: 집계 숫자가 나온 기록 조회 (C83) */
+  /* 드릴다운: 집계 숫자가 나온 기록 조회 및 상세 정보(막힘 사유, 실제 실행 시간, 지연 일수) 연계 (C83) */
   drillDown: async function(planId, type) {
     var data = await Review.compute(planId);
     var ids = [];
-    if (type === 'total') ids = data.allTodoIds;
-    else if (type === 'completed') ids = data.completedIds;
-    else if (type === 'delayed') ids = data.delayedIds;
-    else if (type === 'blocked') ids = data.blockedIds;
+    if (type === 'total' || type === 'estHours' || type === 'actHours' || type === 'diffHours') {
+      ids = data.allTodoIds;
+    } else if (type === 'completed') {
+      ids = data.completedIds;
+    } else if (type === 'delayed') {
+      ids = data.delayedIds;
+    } else if (type === 'blocked') {
+      ids = data.blockedIds;
+    }
 
-    if (ids.length === 0) return [];
+    if (!ids || ids.length === 0) return [];
     var res = await db.from('todos').select('*').in('id', ids).order('created_at', { ascending: true });
-    return res.data || [];
+    var todos = res.data || [];
+
+    // 실행 기록(records) 조회하여 막힘 사유(blocker) 및 실제 실행 시간 데이터 결합
+    var recsRes = await db.from('records').select('*').in('todo_id', ids).order('start_time', { ascending: false });
+    var records = recsRes.data || [];
+
+    var recordsByTodo = {};
+    for (var r = 0; r < records.length; r++) {
+      var rec = records[r];
+      if (!recordsByTodo[rec.todo_id]) recordsByTodo[rec.todo_id] = [];
+      recordsByTodo[rec.todo_id].push(rec);
+    }
+
+    var today = U.todaySeoul();
+
+    return todos.map(function(t) {
+      var tRecs = recordsByTodo[t.id] || [];
+      var blockers = [];
+      var actualHours = 0;
+      for (var k = 0; k < tRecs.length; k++) {
+        if (tRecs[k].blocker && tRecs[k].blocker.trim()) {
+          blockers.push(tRecs[k].blocker.trim());
+        }
+        actualHours += parseFloat(tRecs[k].actual_hours) || 0;
+      }
+      actualHours = Math.round(actualHours * 10) / 10;
+      var estHours = parseFloat(t.estimated_hours) || 0;
+      var diffHours = Math.round((actualHours - estHours) * 10) / 10;
+
+      // 마감 지연 일수 계산
+      var delayedDays = 0;
+      if (t.status !== '완료' && t.due_date && t.due_date < today) {
+        var d1 = new Date(t.due_date);
+        var d2 = new Date(today);
+        var diffTime = d2.getTime() - d1.getTime();
+        delayedDays = Math.max(1, Math.round(diffTime / (1000 * 3600 * 24)));
+      }
+
+      return Object.assign({}, t, {
+        drillType: type,
+        blockers: blockers,
+        records: tRecs,
+        actual_hours: actualHours,
+        diff_hours: diffHours,
+        delayed_days: delayedDays
+      });
+    });
   }
 };

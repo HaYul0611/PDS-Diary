@@ -1938,7 +1938,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .drilldown-box {
   margin-top: 22px;
-  padding: 22px;
+  padding: 24px;
   background: #ffffff;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1949,25 +1949,131 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px dashed var(--border);
 }
 
 .drilldown-header h3 {
   font-family: var(--font-body);
-  font-size: 16.5px;
-  font-weight: 700;
+  font-size: 17.5px;
+  font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text);
+  gap: 8px;
+  color: #2b1f15;
+}
+
+.drilldown-header h3 svg {
+  color: var(--accent);
 }
 
 .empty-drilldown {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--text3);
   text-align: center;
-  padding: 20px;
+  padding: 28px;
+  font-weight: 600;
+}
+
+/* 드릴다운 카드 항목 & 디테일 정보 박스 */
+.drilldown-card-item {
+  margin-bottom: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.drilldown-card-item:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 8px 24px rgba(60, 48, 35, 0.16) !important;
+  transform: translateY(-2px) !important;
+}
+
+.card-sub-info.blocker-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fef2f2;
+  border-left: 3.5px solid #dc3545;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: 10px;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+.card-sub-info.blocker-info .sub-label {
+  font-weight: 700;
+  color: #b91c1c;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-sub-info.blocker-info .sub-val {
+  font-weight: 600;
+  color: #7f1d1d;
+  word-break: break-word;
+}
+
+.card-sub-info.delay-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fffbeb;
+  border-left: 3.5px solid #d97706;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: 10px;
+  color: #92400e;
+  font-size: 14px;
+}
+
+.card-sub-info.delay-info .sub-label {
+  font-weight: 700;
+  color: #b45309;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-sub-info.delay-info .sub-val {
+  font-weight: 600;
+  color: #78350f;
+}
+
+.card-sub-info.hour-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f0fdf4;
+  border-left: 3.5px solid #16a34a;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: 10px;
+  color: #166534;
+  font-size: 14px;
+}
+
+.card-sub-info.hour-info .sub-label {
+  font-weight: 700;
+  color: #15803d;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-sub-info.hour-info .sub-val {
+  font-weight: 600;
+  color: #14532d;
+}
+
+.meta-hours.meta-actual {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
 }
 
 /* ========== Dashboard (돌아보기) ========== */
@@ -2653,7 +2759,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
    ★ [과제 7] 해리포터풍 마법 양장본 다이어리 & 계정 드롭다운 스타일 ★
    ============================================================ */
 
-/* 1. 3D 다이어리 씬 컨테이너 */
+/* 1. 3D 다이어리 씬 컨테이너 (따뜻하고 신비로운 서재 온기 & 동적 앰비언트 라이팅) */
 .auth-book-scene {
   display: flex;
   justify-content: center;
@@ -2662,29 +2768,110 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 30px 16px 50px;
   perspective: 2400px;
   position: relative;
+  overflow: hidden;
 }
 
-/* 2. 해리포터풍 웅장하고 부드러운 양장본 책 본체 */
+/* 몽환적이고 부드러운 서재 온기 앰비언트 광원 */
+.auth-book-scene::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: -30%;
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(circle at 50% 45%, rgba(212, 175, 55, 0.14) 0%, rgba(184, 92, 57, 0.08) 35%, transparent 68%);
+  animation: ambientStudyDrift 11s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 은은하게 부유하는 서재의 금빛 미세 입자 (정적인 분위기 탈피 & 살아 숨쉬는 생기 연출) */
+.auth-book-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 15% 25%, rgba(255, 214, 122, 0.55), transparent),
+    radial-gradient(2.5px 2.5px at 35% 65%, rgba(255, 214, 122, 0.6), transparent),
+    radial-gradient(2px 2px at 65% 18%, rgba(255, 214, 122, 0.5), transparent),
+    radial-gradient(3px 3px at 82% 55%, rgba(255, 214, 122, 0.65), transparent),
+    radial-gradient(2px 2px at 70% 82%, rgba(255, 214, 122, 0.45), transparent);
+  animation: particlesDrift 14s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+}
+
+@keyframes particlesDrift {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: translateY(-18px) scale(1.05);
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translateY(12px) scale(0.96);
+    opacity: 0.7;
+  }
+}
+
+@keyframes ambientStudyDrift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: translate(25px, -15px) scale(1.08);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-20px, 15px) scale(0.96);
+    opacity: 0.8;
+  }
+}
+
+/* 2. 해리포터풍 웅장하고 부드러운 양장본 책 본체 (부드러운 유기적 호흡 부유 애니메이션으로 생기 부여) */
+@keyframes diaryGentleFloat {
+  0% {
+    transform: translateY(0px) rotateY(0deg) rotateX(0deg);
+    box-shadow: 0 35px 85px rgba(4, 10, 22, 0.72), 0 12px 30px rgba(0, 0, 0, 0.5), inset -3px 0 10px rgba(0, 0, 0, 0.6);
+  }
+
+  50% {
+    transform: translateY(-9px) rotateY(-1deg) rotateX(0.5deg);
+    box-shadow: 0 48px 105px rgba(4, 10, 22, 0.82), 0 18px 40px rgba(212, 175, 55, 0.18), inset -3px 0 10px rgba(0, 0, 0, 0.6);
+  }
+
+  100% {
+    transform: translateY(0px) rotateY(0deg) rotateX(0deg);
+    box-shadow: 0 35px 85px rgba(4, 10, 22, 0.72), 0 12px 30px rgba(0, 0, 0, 0.5), inset -3px 0 10px rgba(0, 0, 0, 0.6);
+  }
+}
+
 .closed-diary-book.harry-potter-book {
   position: relative;
   width: 100%;
   max-width: 530px;
   background: #091322;
   border-radius: 16px 26px 26px 16px;
-  box-shadow:
-    0 35px 85px rgba(4, 10, 22, 0.72),
-    0 12px 30px rgba(0, 0, 0, 0.5),
-    inset -3px 0 10px rgba(0, 0, 0, 0.6);
   transform-style: preserve-3d;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease;
   display: flex;
+  animation: diaryGentleFloat 6.5s ease-in-out infinite;
+  z-index: 5;
 }
 
 .closed-diary-book.harry-potter-book:hover {
-  transform: translateY(-5px) rotateY(-1.2deg);
+  transform: translateY(-11px) rotateY(-1.8deg) rotateX(1deg);
   box-shadow:
-    0 42px 95px rgba(4, 10, 22, 0.78),
-    0 16px 36px rgba(0, 0, 0, 0.55),
+    0 52px 115px rgba(4, 10, 22, 0.88),
+    0 22px 48px rgba(212, 175, 55, 0.22),
     inset -3px 0 10px rgba(0, 0, 0, 0.6);
 }
 
@@ -2719,7 +2906,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0.85;
 }
 
-/* 상단 버건디 새틴 가름끈 리본 (Bookmark Ribbon) */
+/* 상단 버건디 새틴 가름끈 리본 (Bookmark Ribbon - 부드러운 스윙 애니메이션) */
+@keyframes ribbonPhysicsSway {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(1.4deg) translateY(-1px);
+  }
+}
+
 .diary-ribbon {
   position: absolute;
   top: -16px;
@@ -2731,11 +2930,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 82%, 0% 100%);
   z-index: 25;
+  transform-origin: top center;
+  animation: ribbonPhysicsSway 5.2s ease-in-out infinite;
   transition: transform 0.3s ease;
 }
 
 .closed-diary-book.harry-potter-book:hover .diary-ribbon {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.04);
 }
 
 /* 3. 3D 앞표지 (Deep Midnight Sapphire Leather Cover) */
@@ -2863,6 +3064,63 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   z-index: 2;
 }
 
+@keyframes buckleWarmPulse {
+
+  0%,
+  100% {
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.6),
+      inset 0 1px 3px rgba(255, 255, 255, 0.8),
+      0 0 6px rgba(212, 175, 55, 0.25);
+  }
+
+  50% {
+    box-shadow:
+      0 6px 22px rgba(0, 0, 0, 0.7),
+      inset 0 1px 3px rgba(255, 255, 255, 0.95),
+      0 0 16px rgba(212, 175, 55, 0.55);
+  }
+}
+
+@keyframes candleFlameFlicker {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.7));
+    opacity: 0.92;
+  }
+
+  25% {
+    transform: scale(1.08, 0.94) rotate(-1.5deg);
+    filter: drop-shadow(0 0 8px rgba(255, 214, 122, 0.95));
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.95, 1.06) rotate(1.2deg);
+    filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.75));
+    opacity: 0.88;
+  }
+
+  75% {
+    transform: scale(1.04, 0.97) rotate(-0.8deg);
+    filter: drop-shadow(0 0 7px rgba(255, 214, 122, 0.9));
+    opacity: 0.96;
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.7));
+    opacity: 0.92;
+  }
+}
+
+.theme-icon-candle,
+.auth-theme-toggle-btn svg,
+.theme-toggle-btn svg {
+  animation: candleFlameFlicker 2.6s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
 .hp-buckle {
   display: inline-flex;
   align-items: center;
@@ -2876,6 +3134,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     0 4px 16px rgba(0, 0, 0, 0.6),
     inset 0 1px 3px rgba(255, 255, 255, 0.8) !important;
   color: #2b1704 !important;
+  animation: buckleWarmPulse 4s ease-in-out infinite;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
 }
 
@@ -3469,24 +3728,61 @@ body.candlelight-theme .auth-theme-toggle-btn:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #f7eee7;
   color: var(--accent);
   flex-shrink: 0;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .menu-user-info {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  gap: 2px;
+}
+
+.dropdown-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.dropdown-user-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #2e241c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-badge-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(224, 122, 82, 0.15);
+  color: var(--accent);
+  letter-spacing: 0.5px;
 }
 
 .dropdown-email {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #2e241c;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #635345;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3497,9 +3793,9 @@ body.candlelight-theme .auth-theme-toggle-btn:hover {
   align-items: center;
   gap: 5px;
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   color: #15803d;
-  margin-top: 3px;
+  margin-top: 1px;
 }
 
 .dropdown-status-badge .status-dot {
@@ -3716,49 +4012,65 @@ body.candlelight-theme {
   color: #faf2e4 !important;
 }
 
-/* 1. 전체 다이어리 외형 & 북 래퍼 */
+/* 1. 전체 다이어리 외형 & 북 래퍼 (심야 서재 감성 복원 - 단색 플랫함 완전 해소) */
 body.candlelight-theme #app {
-  background: #231810 !important;
-  border-color: #4a3422 !important;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.88), 0 0 50px rgba(212, 175, 55, 0.12) !important;
+  background-color: #21160e !important;
+  /* 캔들라이트 은은한 상단 램프 조명 + 고급 모눈종이 황금빛 그리드 텍스처 */
+  background-image:
+    radial-gradient(ellipse at 50% 12%, rgba(255, 214, 122, 0.14) 0%, rgba(224, 122, 82, 0.05) 45%, transparent 80%),
+    linear-gradient(to right, rgba(212, 175, 55, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 22px 22px, 22px 22px !important;
+  border: 10px solid #3d2a1b !important;
+  outline: 1px solid #5a3f29 !important;
+  border-radius: 28px !important;
+  box-shadow:
+    0 35px 90px rgba(0, 0, 0, 0.92),
+    0 0 55px rgba(212, 175, 55, 0.16),
+    inset 0 0 90px rgba(10, 6, 3, 0.55) !important;
 }
 
-body.candlelight-theme .diary-book-wrapper {
-  background: #291e15 !important;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45) !important;
+body.candlelight-theme #app::after {
+  background: linear-gradient(180deg, #c46835 0%, #87361a 100%) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(224, 122, 82, 0.45) !important;
 }
 
-body.candlelight-theme .diary-grid-texture {
-  opacity: 0.08 !important;
-  filter: invert(1);
+body.candlelight-theme #app::before {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.45), transparent) !important;
 }
 
 /* 2. 상단 헤더 & 로고 & 헤더 버튼 (흰색 배경 완전 제거 -> 앤틱 서재 톤) */
 body.candlelight-theme .header {
-  background: #1c130d !important;
-  border-bottom: 2px solid #4a3422 !important;
+  background: #19110a !important;
+  border-bottom: 2px solid #483220 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
 }
 
 body.candlelight-theme .logo {
   color: #ffd67a !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 body.candlelight-theme .logo svg {
   stroke: #ffd67a !important;
+  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
 }
 
 body.candlelight-theme .hdr-btn,
 body.candlelight-theme .account-trigger-btn {
-  background: #2d1f14 !important;
+  background: #2b1d12 !important;
   border-color: #553b26 !important;
   color: #f0e2cc !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
 }
 
 body.candlelight-theme .hdr-btn:hover,
 body.candlelight-theme .account-trigger-btn:hover {
-  background: #3d2c1e !important;
+  background: #3d2a1b !important;
   border-color: #d4af37 !important;
   color: #ffd67a !important;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25) !important;
+  transform: translateY(-1px);
 }
 
 body.candlelight-theme .user-email-text {
@@ -3766,41 +4078,117 @@ body.candlelight-theme .user-email-text {
 }
 
 body.candlelight-theme .user-avatar-badge {
-  background: rgba(212, 175, 55, 0.25) !important;
+  background: rgba(212, 175, 55, 0.22) !important;
   color: #ffd67a !important;
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
 }
 
 body.candlelight-theme .theme-toggle-btn {
-  background: #2d1f14 !important;
+  background: #2b1d12 !important;
   border-color: #d4af37 !important;
   color: #ffd67a !important;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.25) !important;
 }
 
 body.candlelight-theme .theme-toggle-btn:hover {
-  background: #3d2c1e !important;
+  background: #3d2a1b !important;
   border-color: #ffe082 !important;
   color: #ffffff !important;
+  box-shadow: 0 0 18px rgba(255, 214, 122, 0.45) !important;
 }
 
-/* 3. 탭 내비게이션 (사진·Vlog 등 모든 탭 뚜렷한 가독성 보장) */
+/* 3. 탭 내비게이션 (흰색 가로 띠 완전 제거 & 앤틱 가죽 책갈피 포인트 디자인) */
+body.candlelight-theme .tabs {
+  background: #150e08 !important;
+  border-bottom: 2.5px solid #4a3320 !important;
+  padding: 10px 24px 0 !important;
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.45),
+    inset 0 -1px 0 rgba(212, 175, 55, 0.22) !important;
+  position: relative;
+  z-index: 10;
+}
+
 body.candlelight-theme .tab {
-  background: #291d14 !important;
-  color: #e2d4c0 !important;
-  border-color: #4d3624 !important;
+  background: linear-gradient(180deg, #2a1c12 0%, #1c120a 100%) !important;
+  color: #c4b098 !important;
+  border: 1.5px solid #442f1d !important;
+  border-bottom: none !important;
+  border-radius: 12px 12px 0 0 !important;
+  margin-right: 5px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 220, 130, 0.1) !important;
+  position: relative;
+  font-family: var(--font-hand);
+  font-size: 20px;
+  font-weight: 700;
 }
 
 body.candlelight-theme .tab:hover {
-  color: #ffffff !important;
-  background: #38281b !important;
+  color: #ffd67a !important;
+  background: linear-gradient(180deg, #3d2a1a 0%, #281b11 100%) !important;
   border-color: #d4af37 !important;
+  transform: translateY(-3px) !important;
+  box-shadow:
+    0 -5px 16px rgba(212, 175, 55, 0.25),
+    inset 0 1px 2px rgba(255, 214, 122, 0.15) !important;
 }
 
 body.candlelight-theme .tab.active {
-  background: #20170f !important;
-  color: #ffd67a !important;
-  border-bottom-color: #20170f !important;
-  box-shadow: 0 -3px 14px rgba(212, 175, 55, 0.22) !important;
+  background: linear-gradient(180deg, #382416 0%, #21160e 100%) !important;
+  color: #ffe2a0 !important;
+  border-color: #d4af37 !important;
+  border-top: 3.5px solid #f59e0b !important;
+  border-bottom: 2.5px solid #21160e !important;
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 -8px 24px rgba(212, 175, 55, 0.32),
+    inset 0 2px 8px rgba(255, 214, 122, 0.22) !important;
+  z-index: 5 !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* 활성 탭 캔들라이트 시그니처 앰버 불꽃 포인트 미크로 뱃지 */
+body.candlelight-theme .tab.active::after {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: #ffd67a;
+  border-radius: 50%;
+  box-shadow:
+    0 0 8px #f59e0b,
+    0 0 16px rgba(212, 175, 55, 0.85);
+  margin-left: 8px;
+  animation: candleFlameFlicker 2.4s ease-in-out infinite alternate;
+}
+
+/* 캔들라이트 모드 중앙 책등 제본선 & 절취 경계선 점선 (상단 잘림 없이 은은하고 자연스러운 점선 스티칭 연출) */
+body.candlelight-theme .content::before {
+  display: none !important;
+}
+
+body.candlelight-theme .book-spine-line {
+  z-index: 40 !important;
+  background: linear-gradient(to right,
+      transparent 0%,
+      rgba(15, 10, 6, 0.25) 30%,
+      rgba(6, 4, 2, 0.5) 50%,
+      rgba(15, 10, 6, 0.25) 70%,
+      transparent 100%) !important;
+}
+
+body.candlelight-theme .book-spine-line::after {
+  top: 72px !important;
+  bottom: 12px !important;
+  width: 1px !important;
+  background-image: repeating-linear-gradient(to bottom,
+      rgba(212, 175, 55, 0.35) 0,
+      rgba(212, 175, 55, 0.35) 4px,
+      transparent 4px,
+      transparent 14px) !important;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.18) !important;
 }
 
 /* 4. 섹션 타이틀 및 가이드 배너 */
@@ -3899,14 +4287,26 @@ body.candlelight-theme .btn-outline:hover {
 }
 
 body.candlelight-theme .btn-danger {
-  background: rgba(185, 28, 28, 0.28) !important;
-  border-color: #991b1b !important;
-  color: #fca5a5 !important;
+  background: #342519 !important;
+  border: 1.5px solid #5a352a !important;
+  color: #f87171 !important;
+  box-shadow: none !important;
 }
 
 body.candlelight-theme .btn-danger:hover {
-  background: rgba(185, 28, 28, 0.45) !important;
-  color: #ffffff !important;
+  background: #44261f !important;
+  border-color: #991b1b !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.candlelight-theme .btn-icon-danger {
+  color: #c97a68 !important;
+}
+
+body.candlelight-theme .btn-icon-danger:hover {
+  background: rgba(185, 28, 28, 0.22) !important;
+  color: #fca5a5 !important;
 }
 
 body.candlelight-theme .btn-pending-toggle {
@@ -4156,16 +4556,94 @@ body.candlelight-theme .next-action-form .input::placeholder {
   color: #9e8d77 !important;
 }
 
-/* 12. 모달 및 폼 컨트롤 */
-body.candlelight-theme .modal-dialog {
+/* 12. 모달 및 폼 컨트롤 (캔들라이트 테마 완벽 적용 - 첫 번째 & 두 번째 사진 가독성 100% 개선) */
+body.candlelight-theme .modal-card {
   background: #291e15 !important;
   border-color: #5a3f29 !important;
   color: #faf2e4 !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(212, 175, 55, 0.12) !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.88), 0 0 40px rgba(212, 175, 55, 0.12) !important;
 }
 
-body.candlelight-theme .modal-title {
+body.candlelight-theme .modal-header {
+  background: #231810 !important;
+  border-bottom-color: #4a3422 !important;
+}
+
+body.candlelight-theme .modal-header h3,
+body.candlelight-theme #modalTitle {
   color: #ffd67a !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+body.candlelight-theme .modal-x {
+  color: #bdaea0 !important;
+}
+
+body.candlelight-theme .modal-x:hover {
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .modal-body {
+  background: #291e15 !important;
+  color: #faf2e4 !important;
+}
+
+/* 캔들라이트 모드 회원 탈퇴 확인 모달 (첫 번째 사진 완벽 해결) */
+body.candlelight-theme .delete-dialog-badge {
+  background: rgba(220, 38, 38, 0.22) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 4px 18px rgba(220, 38, 38, 0.3) !important;
+}
+
+body.candlelight-theme .delete-dialog-title {
+  color: #f87171 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+body.candlelight-theme .delete-dialog-card {
+  background: rgba(185, 28, 28, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+body.candlelight-theme .delete-dialog-desc {
+  color: #fca5a5 !important;
+}
+
+body.candlelight-theme .delete-dialog-desc strong {
+  color: #ffffff !important;
+}
+
+body.candlelight-theme .delete-dialog-prompt {
+  color: #ffd67a !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+body.candlelight-theme .btn-delete-cancel {
+  background: #342519 !important;
+  border-color: #553b26 !important;
+  color: #e2d4c0 !important;
+}
+
+body.candlelight-theme .btn-delete-cancel:hover {
+  background: #423020 !important;
+  border-color: #d4af37 !important;
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .btn-delete-confirm {
+  background: #7f1d1d !important;
+  border-color: #991b1b !important;
+  color: #fee2e2 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45) !important;
+}
+
+body.candlelight-theme .btn-delete-confirm:hover {
+  background: #991b1b !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4) !important;
 }
 
 body.candlelight-theme .form-group label {
@@ -4212,6 +4690,474 @@ body.candlelight-theme .account-menu-item:hover,
 body.candlelight-theme .custom-select-option:hover {
   background: #3d2c1e !important;
   color: #ffd67a !important;
+}
+
+body.candlelight-theme .account-menu-item.danger {
+  color: #f87171 !important;
+}
+
+body.candlelight-theme .account-menu-item.danger:hover {
+  background: rgba(185, 28, 28, 0.22) !important;
+  color: #fca5a5 !important;
+}
+
+/* 캔들라이트 모드 아바타 & 계정 드롭다운 텍스트 시인성 개선 (세번째 사진 완벽 해결) */
+body.candlelight-theme .menu-avatar {
+  background: #38281b !important;
+  border-color: #5c432d !important;
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .dropdown-user-name {
+  color: #ffd67a !important;
+  font-weight: 800 !important;
+}
+
+body.candlelight-theme .dropdown-email {
+  color: #faf2e4 !important;
+  font-weight: 600 !important;
+}
+
+body.candlelight-theme .dropdown-badge-tag {
+  background: rgba(212, 175, 55, 0.22) !important;
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .dropdown-status-badge {
+  color: #4ade80 !important;
+  font-weight: 600 !important;
+}
+
+body.candlelight-theme .dropdown-status-badge .status-dot {
+  background: #22c55e !important;
+  box-shadow: 0 0 8px #22c55e !important;
+}
+
+/* 캔들라이트 모드 돌아보기 드릴다운 박스 (첫 번째 & 두 번째 사진 완벽 해결) */
+body.candlelight-theme .drilldown-box {
+  background: #251b12 !important;
+  border-color: #523b28 !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 25px rgba(212, 175, 55, 0.08) !important;
+}
+
+body.candlelight-theme .drilldown-header {
+  border-bottom-color: #4a3422 !important;
+}
+
+body.candlelight-theme .drilldown-header h3 {
+  color: #ffd67a !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+body.candlelight-theme .drilldown-header h3 svg {
+  color: #e07a52 !important;
+}
+
+body.candlelight-theme .drilldown-card-item:hover {
+  background: #3c2a1c !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 14px rgba(212, 175, 55, 0.18) !important;
+}
+
+body.candlelight-theme .dash-card:hover {
+  background: #3e2c1e !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.65), 0 0 16px rgba(212, 175, 55, 0.2) !important;
+}
+
+body.candlelight-theme .dash-hint {
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .card-sub-info.blocker-info {
+  background: rgba(220, 53, 69, 0.22) !important;
+  border-left-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+body.candlelight-theme .card-sub-info.blocker-info .sub-label {
+  color: #f87171 !important;
+}
+
+body.candlelight-theme .card-sub-info.blocker-info .sub-val {
+  color: #fee2e2 !important;
+}
+
+body.candlelight-theme .card-sub-info.delay-info {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border-left-color: #f59e0b !important;
+  color: #fde68a !important;
+}
+
+body.candlelight-theme .card-sub-info.delay-info .sub-label {
+  color: #fbbf24 !important;
+}
+
+body.candlelight-theme .card-sub-info.delay-info .sub-val {
+  color: #fef3c7 !important;
+}
+
+body.candlelight-theme .card-sub-info.hour-info {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-left-color: #10b981 !important;
+  color: #a7f3d0 !important;
+}
+
+body.candlelight-theme .card-sub-info.hour-info .sub-label {
+  color: #34d399 !important;
+}
+
+body.candlelight-theme .card-sub-info.hour-info .sub-val {
+  color: #d1fae5 !important;
+}
+
+/* ========== 프로필 & 아바타 수정 모달 ========== */
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--paper-sub);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+}
+
+.profile-avatar-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid var(--accent);
+  box-shadow: 0 4px 14px rgba(224, 122, 82, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  flex-shrink: 0;
+}
+
+.avatar-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-modal-placeholder {
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-user-summary h4 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+.profile-email-badge {
+  font-size: 13px;
+  color: var(--text3);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-label-bold {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preset-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.preset-avatar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preset-avatar-btn:hover {
+  border-color: var(--accent);
+  background: var(--paper-active);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(224, 122, 82, 0.2);
+}
+
+.preset-avatar-btn.active {
+  border-color: var(--accent);
+  background: var(--paper-active);
+  box-shadow: 0 0 0 2.5px var(--accent), 0 4px 14px rgba(224, 122, 82, 0.28);
+  transform: translateY(-2px);
+}
+
+.preset-avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.preset-avatar-btn:hover .preset-avatar-circle,
+.preset-avatar-btn.active .preset-avatar-circle {
+  transform: scale(1.08);
+}
+
+.preset-avatar-emoji {
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preset-avatar-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+/* 프로필 모달 하단 버튼 액션 바 (두 번째 사진 완벽 개선) */
+.modal-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1.5px solid var(--border);
+}
+
+.modal-form-actions .btn-outline {
+  min-width: 96px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.modal-form-actions .btn-primary {
+  min-width: 165px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+}
+
+body.candlelight-theme .modal-form-actions {
+  border-top-color: #4a3422 !important;
+}
+
+body.candlelight-theme .modal-form-actions .btn-outline {
+  background: #342519 !important;
+  border-color: #553b26 !important;
+  color: #e2d4c0 !important;
+}
+
+body.candlelight-theme .modal-form-actions .btn-outline:hover {
+  background: #423020 !important;
+  border-color: #d4af37 !important;
+  color: #ffd67a !important;
+}
+
+/* 캔들라이트 모드 회원 정보 및 프로필 사진 수정 모달 (두 번째 사진 완벽 해결) */
+body.candlelight-theme .profile-preview-card {
+  background: #342519 !important;
+  border-color: #523b28 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.candlelight-theme .profile-avatar-circle {
+  border-color: #d4af37 !important;
+  background: #20160e !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
+}
+
+body.candlelight-theme .profile-user-summary h4 {
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .profile-email-badge {
+  color: #c9b8a2 !important;
+}
+
+body.candlelight-theme .form-label-bold {
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .input-helper {
+  color: #bdaea0 !important;
+}
+
+body.candlelight-theme .preset-avatar-btn {
+  background: #241a12 !important;
+  border-color: #4a3422 !important;
+}
+
+body.candlelight-theme .preset-avatar-btn:hover {
+  background: #342519 !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25) !important;
+}
+
+body.candlelight-theme .preset-avatar-btn.active {
+  background: #3c2a1c !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2.5px #d4af37, 0 4px 16px rgba(212, 175, 55, 0.35) !important;
+}
+
+body.candlelight-theme .preset-avatar-text {
+  color: #e2d4c0 !important;
+}
+
+body.candlelight-theme .preset-avatar-btn.active .preset-avatar-text {
+  color: #ffd67a !important;
+  font-weight: 700 !important;
+}
+
+body.candlelight-theme .profile-pw-section {
+  background: #221810 !important;
+  border-color: #4a3422 !important;
+}
+
+body.candlelight-theme .pw-accordion-btn {
+  color: #e2d4c0 !important;
+}
+
+body.candlelight-theme .pw-accordion-btn:hover {
+  color: #ffd67a !important;
+}
+
+body.candlelight-theme .input-disabled {
+  background: #1c130b !important;
+  border-color: #422e1e !important;
+  color: #c9b8a2 !important;
+  opacity: 0.9 !important;
+}
+
+body.candlelight-theme input[type="file"]::file-selector-button {
+  background: #342519 !important;
+  color: #ffd67a !important;
+  border: 1.2px solid #5a3f29 !important;
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+body.candlelight-theme input[type="file"]::file-selector-button:hover {
+  background: #423020 !important;
+  border-color: #d4af37 !important;
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--paper-sub);
+  color: var(--text);
+  border: 1.2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--paper-active);
+  border-color: var(--accent);
+}
+
+.input-helper {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  display: block;
+}
+
+.input-disabled {
+  background: var(--paper-sub) !important;
+  color: var(--text3) !important;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.profile-pw-section {
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  background: var(--paper-sub);
+}
+
+.pw-accordion-btn {
+  background: none;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text2);
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.pw-accordion-btn:hover {
+  color: var(--accent);
+}
+
+.pw-fields-box {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* 13. 다이어리 하단 페이지 번호 */

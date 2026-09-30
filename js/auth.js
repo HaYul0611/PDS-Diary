@@ -154,12 +154,99 @@ var Auth = (function () {
     }
   }
 
+  // 회원 정보 및 아바타 프로필 수정
+  async function updateProfile(options) {
+    if (!currentUser) {
+      return { success: false, message: '로그인 상태가 아닙니다.' };
+    }
+
+    try {
+      var userMetadata = Object.assign({}, currentUser.user_metadata || {});
+
+      if (options.displayName !== undefined && options.displayName !== null) {
+        userMetadata.display_name = options.displayName.trim();
+        userMetadata.name = options.displayName.trim();
+      }
+
+      var avatarUrl = options.avatarUrl;
+      if (options.avatarFile) {
+        try {
+          var file = options.avatarFile;
+          var ext = (file.name && file.name.split('.').pop()) || 'png';
+          var fileName = 'avatar_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + ext;
+          var filePath = currentUser.id + '/' + fileName;
+          var upRes = await db.storage.from('vlog-media').upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+          if (upRes && upRes.data) {
+            var pub = db.storage.from('vlog-media').getPublicUrl(filePath);
+            if (pub && pub.data && pub.data.publicUrl) {
+              avatarUrl = pub.data.publicUrl;
+            }
+          }
+        } catch (storageErr) {
+          console.warn('Storage upload fallback:', storageErr);
+          if (typeof Vlog !== 'undefined' && Vlog.uploadMedia) {
+            avatarUrl = await Vlog.uploadMedia(options.avatarFile);
+          } else {
+            avatarUrl = await new Promise(function (resolve) {
+              var reader = new FileReader();
+              reader.onload = function (e) { resolve(e.target.result); };
+              reader.readAsDataURL(options.avatarFile);
+            });
+          }
+        }
+      }
+
+      if (avatarUrl !== undefined && avatarUrl !== null) {
+        userMetadata.avatar_url = avatarUrl;
+      }
+
+      var updates = {
+        data: userMetadata
+      };
+
+      if (options.password && options.password.trim()) {
+        if (options.password.trim().length < 6) {
+          return { success: false, message: '비밀번호는 최소 6자 이상이어야 합니다.' };
+        }
+        updates.password = options.password.trim();
+      }
+
+      var res = await db.auth.updateUser(updates);
+      if (res.error) {
+        return { success: false, message: res.error.message };
+      }
+
+      // Supabase 서버에서 최신 사용자 레코드를 직접 재조회하여 검증
+      var verifiedRes = await db.auth.getUser();
+      if (verifiedRes && verifiedRes.data && verifiedRes.data.user) {
+        currentUser = verifiedRes.data.user;
+      } else {
+        currentUser = res.data.user;
+      }
+
+      return {
+        success: true,
+        user: currentUser,
+        message: '회원 정보가 성공적으로 수정되었습니다.'
+      };
+    } catch (err) {
+      return {
+        success: false,
+        message: '프로필 수정 중 오류가 발생했습니다: ' + (err.message || err)
+      };
+    }
+  }
+
   return {
     init: initAuth,
     getUser: getUser,
     signUp: signUp,
     signIn: signIn,
     signOut: signOut,
-    deleteAccount: deleteAccount
+    deleteAccount: deleteAccount,
+    updateProfile: updateProfile
   };
 })();

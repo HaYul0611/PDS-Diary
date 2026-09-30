@@ -34,15 +34,74 @@
     }
   }
 
+  /* ========== 사용자 프로필 UI 동기화 (헤더 & 드롭다운) ========== */
+  /* ========== 사용자 프로필 UI 동기화 (헤더 & 드롭다운) ========== */
+  function updateProfileUI(user) {
+    var emailText = document.getElementById('userEmailText');
+    var dropdownEmail = document.getElementById('dropdownUserEmail');
+    var dropdownName = document.getElementById('dropdownUserName');
+    var headerAvatar = document.getElementById('headerAvatarContent');
+    var dropdownAvatar = document.getElementById('dropdownAvatarWrap');
+
+    var defaultEyesEmoji = '<span class="avatar-eyes-emoji" style="font-size: 15px; line-height: 1; display:flex; align-items:center; justify-content:center;">👀</span>';
+    var defaultEyesEmojiLg = '<span class="avatar-eyes-emoji" style="font-size: 21px; line-height: 1; display:flex; align-items:center; justify-content:center;">👀</span>';
+
+    var silhouetteIconSm = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />' +
+      '<circle cx="12" cy="7" r="4" />' +
+      '</svg>';
+    var silhouetteIconLg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />' +
+      '<circle cx="12" cy="7" r="4" />' +
+      '</svg>';
+
+    if (!user) {
+      if (emailText) emailText.textContent = '';
+      if (dropdownEmail) dropdownEmail.textContent = '';
+      if (dropdownName) dropdownName.textContent = '';
+      if (headerAvatar) headerAvatar.innerHTML = defaultEyesEmoji;
+      if (dropdownAvatar) dropdownAvatar.innerHTML = defaultEyesEmojiLg;
+      return;
+    }
+
+    var meta = user.user_metadata || {};
+    var displayName = meta.display_name || meta.name || (user.email ? user.email.split('@')[0] : '내 다이어리');
+    var avatarUrl = meta.avatar_url || '';
+
+    if (emailText) emailText.textContent = displayName;
+    if (dropdownName) dropdownName.textContent = displayName;
+    if (dropdownEmail) dropdownEmail.textContent = user.email || '';
+
+    var defaultEyesAvatar = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#475569"/><text x="50" y="52" font-size="52" text-anchor="middle" dominant-baseline="central" alignment-baseline="central">👀</text></svg>'
+    )));
+
+    var isEyesDefault = (!avatarUrl || avatarUrl === 'default' || avatarUrl === 'eyes' || avatarUrl === defaultEyesAvatar);
+    var isSilhouette = (avatarUrl === 'none' || avatarUrl === 'silhouette');
+
+    if (isSilhouette) {
+      if (headerAvatar) headerAvatar.innerHTML = silhouetteIconSm;
+      if (dropdownAvatar) dropdownAvatar.innerHTML = silhouetteIconLg;
+    } else if (isEyesDefault) {
+      if (headerAvatar) headerAvatar.innerHTML = defaultEyesEmoji;
+      if (dropdownAvatar) dropdownAvatar.innerHTML = defaultEyesEmojiLg;
+    } else {
+      var headerAvatarHtml = '<img src="' + U.esc(avatarUrl) + '" class="user-avatar-img" alt="' + U.esc(displayName) + '" onerror="this.onerror=null; this.src=\'' + defaultEyesAvatar + '\';">';
+      var dropdownAvatarHtml = '<img src="' + U.esc(avatarUrl) + '" class="user-avatar-img dropdown-lg" alt="' + U.esc(displayName) + '" onerror="this.onerror=null; this.src=\'' + defaultEyesAvatar + '\';">';
+      if (headerAvatar) headerAvatar.innerHTML = headerAvatarHtml;
+      if (dropdownAvatar) dropdownAvatar.innerHTML = dropdownAvatarHtml;
+    }
+  }
+
   /* ========== 인증 상태 처리 및 UI 전환 (T07-C03, T07-C97) ========== */
   function handleAuthState(user) {
     var appEl = document.getElementById('app');
     var authScreen = document.getElementById('authScreen');
     var diaryWrapper = document.getElementById('diaryMainWrapper');
     var userProfile = document.getElementById('userProfileArea');
-    var emailText = document.getElementById('userEmailText');
-    var dropdownEmail = document.getElementById('dropdownUserEmail');
     var dropdownWrap = document.getElementById('accountDropdownWrap');
+
+    updateProfileUI(user);
 
     if (user) {
       // 1. 로그인 성공 상태: 오픈된 다이어리 내지 스타일 복원
@@ -53,8 +112,6 @@
       }
       if (diaryWrapper) diaryWrapper.hidden = false;
       if (userProfile) userProfile.style.display = 'inline-flex';
-      if (emailText) emailText.textContent = user.email || '내 다이어리';
-      if (dropdownEmail) dropdownEmail.textContent = user.email || '내 계정';
 
       // 사용자 데이터 로드
       loadPlans();
@@ -74,8 +131,6 @@
       }
       if (diaryWrapper) diaryWrapper.hidden = true;
       if (userProfile) userProfile.style.display = 'none';
-      if (emailText) emailText.textContent = '';
-      if (dropdownEmail) dropdownEmail.textContent = '';
       if (dropdownWrap) dropdownWrap.classList.remove('open');
 
       closeModal();
@@ -371,6 +426,15 @@
         errorBox.className = 'auth-msg-box success';
         errorBox.innerHTML = '<span class="auth-msg-icon">✓</span> ' + U.esc(msg);
       }
+    }
+
+    // 회원 정보 및 프로필/아바타 수정 모달 열기
+    var editBtn = document.getElementById('editProfileBtn');
+    if (editBtn) {
+      editBtn.onclick = function () {
+        if (accountDropdown) accountDropdown.classList.remove('open');
+        showProfileModal();
+      };
     }
 
     // 로그아웃 (T07-C96)
@@ -1781,9 +1845,9 @@
         dashCard('completed', '완료된 일', d.completed, 'positive', Icons.check(20)) +
         dashCard('delayed', '마감 지연', d.delayed, d.delayed > 0 ? 'negative' : '', Icons.alertCircle(20)) +
         dashCard('blocked', '막힘 발생', d.blocked, d.blocked > 0 ? 'negative' : '', Icons.flag(20)) +
-        '<div class="dash-card"><div class="dash-card-header">' + Icons.clock(18) + '<span class="dash-label">예상 시간</span></div><div class="dash-num">' + d.estHours + 'h</div></div>' +
-        '<div class="dash-card"><div class="dash-card-header">' + Icons.play(18) + '<span class="dash-label">실제 실행 시간</span></div><div class="dash-num">' + d.actHours + 'h</div></div>' +
-        '<div class="dash-card ' + diffClass + '"><div class="dash-card-header">' + Icons.history(18) + '<span class="dash-label">시간 오차</span></div><div class="dash-num">' + diffSign + d.diffHours + 'h</div></div>';
+        dashCard('estHours', '예상 시간', d.estHours + 'h', '', Icons.clock(18)) +
+        dashCard('actHours', '실제 실행 시간', d.actHours + 'h', '', Icons.play(18)) +
+        dashCard('diffHours', '시간 오차', diffSign + d.diffHours + 'h', diffClass, Icons.history(18));
 
       /* 다음 계획으로 넘길 한 줄 (C33) */
       if (naEl) {
@@ -1822,21 +1886,55 @@
           if (drillEl) {
             drillEl.hidden = false;
             drillEl.innerHTML = '<div class="drilldown-header">' +
-              '<h3>' + Icons.list(16) + ' "' + U.esc(label) + '" 세부 항목 (' + items.length + '건)</h3>' +
-              '<button class="btn-outline btn-sm" type="button" onclick="App.closeDrillDown()">' + Icons.x(14) + ' 닫기</button>' +
+              '<h3>' + Icons.list(18) + ' "' + U.esc(label) + '" 세부 항목 (' + items.length + '건)</h3>' +
+              '<button class="btn-outline btn-sm drilldown-close-btn" type="button" onclick="App.closeDrillDown()">' + Icons.x(14) + ' 닫기</button>' +
               '</div>' +
               (items.length === 0
                 ? '<p class="empty-drilldown">해당 조건에 해당하는 할 일이 없습니다.</p>'
                 : items.map(function (t) {
-                  return '<div class="card">' +
+                  var subInfoHtml = '';
+
+                  // 1. 막힘 발생 사유 표시 (첫 번째 이미지의 누락 텍스트 문제 완벽 해결)
+                  if (t.blockers && t.blockers.length > 0) {
+                    subInfoHtml += '<div class="card-sub-info blocker-info">' +
+                      '<span class="sub-label">' + Icons.alertCircle(13) + ' 막힘/방해요인:</span> ' +
+                      '<span class="sub-val">' + t.blockers.map(function (b) { return U.esc(b); }).join(' / ') + '</span>' +
+                      '</div>';
+                  }
+
+                  // 2. 마감 지연 일수 및 상태 표시
+                  if (t.delayed_days > 0) {
+                    subInfoHtml += '<div class="card-sub-info delay-info">' +
+                      '<span class="sub-label">' + Icons.clock(13) + ' 마감 경과:</span> ' +
+                      '<span class="sub-val">마감일(' + U.formatDate(t.due_date) + ') 대비 ' + t.delayed_days + '일 지연</span>' +
+                      '</div>';
+                  }
+
+                  // 3. 시간 분석 정보 (실제 기록 시간 또는 시간 오차)
+                  if (t.drillType === 'actHours' || t.drillType === 'diffHours' || t.drillType === 'estHours' || t.actual_hours > 0) {
+                    var sign = t.diff_hours > 0 ? '+' : '';
+                    subInfoHtml += '<div class="card-sub-info hour-info">' +
+                      '<span class="sub-label">' + Icons.history(13) + ' 시간 집계:</span> ' +
+                      '<span class="sub-val">예상 ' + (t.estimated_hours || 0) + 'h / 실제 실행 ' + (t.actual_hours || 0) + 'h (오차: ' + sign + t.diff_hours + 'h)</span>' +
+                      '</div>';
+                  }
+
+                  return '<div class="card drilldown-card-item' + (t.status === '완료' ? ' card-done' : '') + '">' +
                     '<div class="card-header-line">' +
-                    '<div class="card-title">' + U.esc(t.title) + '</div>' +
+                    '<div class="card-title">' +
+                    (t.status === '완료' ? '<span class="done-check-icon">' + Icons.check(14) + '</span>' : '') +
+                    U.esc(t.title) +
+                    '</div>' +
                     '<div class="card-badges">' + priorityBadge(t.priority) + statusBadge(t.status) + '</div>' +
                     '</div>' +
                     '<div class="card-meta">' +
                     (t.due_date ? '<span class="meta-date">' + Icons.calendar(13) + '마감: ' + U.formatDate(t.due_date) + '</span>' : '') +
+                    (t.tag ? '<span class="meta-tag">' + Icons.tag(13) + '<span class="badge badge-tag">' + U.esc(t.tag) + '</span></span>' : '') +
                     '<span class="meta-hours">' + Icons.clock(13) + '예상 ' + (t.estimated_hours || 0) + 'h</span>' +
-                    '</div></div>';
+                    (t.actual_hours > 0 ? '<span class="meta-hours meta-actual">' + Icons.play(13) + '실제 ' + t.actual_hours + 'h</span>' : '') +
+                    '</div>' +
+                    subInfoHtml +
+                    '</div>';
                 }).join(''));
 
             drillEl.scrollIntoView({ behavior: 'smooth' });
@@ -1858,6 +1956,285 @@
       '<div class="dash-num">' + value + '</div>' +
       '<div class="dash-hint">자세히 보기 &rarr;</div>' +
       '</div>';
+  }
+
+  /* ========== 회원 정보 및 프로필/아바타 사진 수정 모달 ========== */
+  function showProfileModal() {
+    var user = Auth.getUser();
+    if (!user) {
+      U.toast('로그인 상태에서만 회원 정보를 수정할 수 있습니다.', 'error');
+      return;
+    }
+
+    var meta = user.user_metadata || {};
+    var currentDisplayName = meta.display_name || meta.name || (user.email ? user.email.split('@')[0] : '');
+    var currentAvatarUrl = meta.avatar_url || '';
+    var selectedAvatarUrl = currentAvatarUrl;
+    var selectedAvatarFile = null;
+
+    var presetAvatars = [
+      { name: '기본', icon: '👀', bg: '#475569' },
+      { name: '다이어리', icon: '📖', bg: '#e07a52' },
+      { name: '커피', icon: '☕', bg: '#8d5b4c' },
+      { name: '새싹', icon: '🌿', bg: '#2e7d32' },
+      { name: '고양이', icon: '🐱', bg: '#ea580c' },
+      { name: '달밤', icon: '🌙', bg: '#3730a3' },
+      { name: '팔레트', icon: '🎨', bg: '#0284c7' },
+      { name: '없음', icon: '👤', bg: '#2d2218', isNone: true }
+    ];
+
+    var defaultPresetUrl = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#475569"/><text x="50" y="50" font-size="52" text-anchor="middle" dominant-baseline="central" alignment-baseline="central">👀</text></svg>'
+    )));
+
+    var silhouetteAvatar = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#2d2218"/><path d="M74 80v-4a18 18 0 0 0-18-18H44a18 18 0 0 0-18 18v4" fill="none" stroke="#d4af37" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="38" r="14" fill="none" stroke="#d4af37" stroke-width="6"/></svg>'
+    )));
+
+    function makePresetDataUrl(av) {
+      if (av.isNone) {
+        return silhouetteAvatar;
+      }
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+        '<rect width="100" height="100" rx="50" fill="' + av.bg + '"/>' +
+        '<text x="50" y="50" font-size="52" text-anchor="middle" dominant-baseline="central" alignment-baseline="central">' + av.icon + '</text>' +
+        '</svg>';
+      return 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svg)));
+    }
+
+    if (!selectedAvatarUrl) {
+      selectedAvatarUrl = defaultPresetUrl;
+    }
+
+    var presetButtonsHtml = presetAvatars.map(function (av) {
+      var dUrl = makePresetDataUrl(av);
+      var isCurrent = false;
+      if (av.isNone) {
+        isCurrent = (currentAvatarUrl === 'none' || currentAvatarUrl === silhouetteAvatar);
+      } else if (av.name === '기본') {
+        isCurrent = (!currentAvatarUrl || currentAvatarUrl === 'default' || currentAvatarUrl === defaultPresetUrl);
+      } else {
+        isCurrent = (currentAvatarUrl === dUrl);
+      }
+      return '<button type="button" class="preset-avatar-btn' + (isCurrent ? ' active' : '') + '" data-url="' + U.esc(dUrl) + '" data-is-none="' + (av.isNone ? 'true' : 'false') + '" title="' + av.name + '">' +
+        '<span class="preset-avatar-circle" style="background:' + av.bg + ';">' +
+        (av.isNone
+          ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>'
+          : '<span class="preset-avatar-emoji">' + av.icon + '</span>') +
+        '</span>' +
+        '<span class="preset-avatar-text">' + av.name + '</span>' +
+        '</button>';
+    }).join('');
+
+    var previewSrc = currentAvatarUrl;
+    if (!previewSrc || previewSrc === 'default') {
+      previewSrc = defaultPresetUrl;
+    } else if (previewSrc === 'none' || previewSrc === 'silhouette') {
+      previewSrc = silhouetteAvatar;
+    }
+    var previewContent = '<img src="' + U.esc(previewSrc) + '" id="profileModalPreviewImg" class="avatar-modal-img" alt="미리보기" onerror="this.onerror=null; this.src=\'' + defaultPresetUrl + '\';">';
+
+    var html = '<form id="profileEditForm" class="profile-edit-form">' +
+      '<div class="profile-preview-card">' +
+      '<div class="profile-avatar-circle" id="profileModalAvatarWrap">' +
+      previewContent +
+      '</div>' +
+      '<div class="profile-user-summary">' +
+      '<h4 id="previewNickHeader">' + U.esc(currentDisplayName || '사용자') + '</h4>' +
+      '<p class="profile-email-badge">' + Icons.check(12) + ' ' + U.esc(user.email || '') + '</p>' +
+      '</div>' +
+      '</div>' +
+
+      '<div class="form-group">' +
+      '<label class="form-label-bold">' + Icons.sparkles(14) + ' 감성 일러스트 아바타 선택</label>' +
+      '<div class="preset-avatar-grid">' + presetButtonsHtml + '</div>' +
+      '</div>' +
+
+      '<div class="form-group">' +
+      '<label class="form-label-bold">' + Icons.camera(14) + ' 내 사진/이미지 파일 직접 업로드</label>' +
+      '<input class="input" type="file" id="profileFileInput" accept="image/png, image/jpeg, image/webp, image/gif">' +
+      '<span class="input-helper">PNG, JPG, WebP 등의 이미지 파일을 선택하면 프로필 사진으로 즉시 적용됩니다.</span>' +
+      '</div>' +
+
+      '<div class="form-group">' +
+      '<label class="form-label-bold">' + Icons.globe(14) + ' 웹 이미지 URL 직접 입력</label>' +
+      '<input class="input" type="url" id="profileUrlInput" placeholder="https://example.com/my-photo.jpg" value="' + (currentAvatarUrl && !currentAvatarUrl.startsWith('data:') ? U.esc(currentAvatarUrl) : '') + '">' +
+      '</div>' +
+
+      '<div class="form-group">' +
+      '<label class="form-label-bold">다이어리 닉네임 / 회원 이름 <span class="req-star">*</span></label>' +
+      '<input class="input" type="text" id="profileDisplayNameInput" name="display_name" value="' + U.esc(currentDisplayName) + '" placeholder="다이어리에 표시할 이름을 입력하세요" required maxlength="25">' +
+      '</div>' +
+
+      '<div class="form-group">' +
+      '<label class="form-label-bold">계정 이메일</label>' +
+      '<input class="input input-disabled" type="text" value="' + U.esc(user.email || '') + '" disabled>' +
+      '</div>' +
+
+      '<div class="profile-pw-section">' +
+      '<button type="button" id="togglePwSectionBtn" class="pw-accordion-btn">' +
+      Icons.lock(14) + ' <span>비밀번호 변경 (선택 사항)</span> ' + Icons.chevronDown(14) +
+      '</button>' +
+      '<div id="pwFieldsBox" class="pw-fields-box" style="display: none;">' +
+      '<div class="form-group">' +
+      '<label>새 비밀번호 (6자 이상)</label>' +
+      '<input class="input" type="password" id="profileNewPassword" placeholder="변경할 경우에만 입력">' +
+      '</div>' +
+      '<div class="form-group">' +
+      '<label>새 비밀번호 확인</label>' +
+      '<input class="input" type="password" id="profileConfirmPassword" placeholder="새 비밀번호를 한번 더 입력">' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+
+      '<div class="modal-form-actions">' +
+      '<button type="button" class="btn-outline" onclick="App.closeModal()">' + Icons.x(14) + ' 취소</button>' +
+      '<button type="submit" id="profileSubmitBtn" class="btn-primary">' + Icons.save(14) + ' 프로필 변경사항 저장</button>' +
+      '</div>' +
+      '</form>';
+
+    openModal('회원 정보 및 프로필 사진 수정', html);
+
+    var wrap = document.getElementById('profileModalAvatarWrap');
+    var fileInput = document.getElementById('profileFileInput');
+    var urlInput = document.getElementById('profileUrlInput');
+    var nameInput = document.getElementById('profileDisplayNameInput');
+    var nickHeader = document.getElementById('previewNickHeader');
+    var form = document.getElementById('profileEditForm');
+    var pwBtn = document.getElementById('togglePwSectionBtn');
+    var pwBox = document.getElementById('pwFieldsBox');
+
+    function updatePreview(url, isNone) {
+      selectedAvatarUrl = isNone ? 'none' : url;
+      if (wrap) {
+        var src = selectedAvatarUrl;
+        if (!src || src === 'default') src = defaultPresetUrl;
+        else if (src === 'none' || src === 'silhouette') src = silhouetteAvatar;
+        wrap.innerHTML = '<img src="' + U.esc(src) + '" class="avatar-modal-img" alt="미리보기" onerror="this.onerror=null; this.src=\'' + defaultPresetUrl + '\';">';
+      }
+    }
+
+    // 1. 프리셋 아바타 클릭
+    document.querySelectorAll('.preset-avatar-btn').forEach(function (btn) {
+      btn.onclick = function () {
+        var url = btn.dataset.url;
+        var isNone = (btn.dataset.isNone === 'true');
+        selectedAvatarFile = null;
+        if (fileInput) fileInput.value = '';
+        if (urlInput) urlInput.value = '';
+        updatePreview(url, isNone);
+        document.querySelectorAll('.preset-avatar-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+      };
+    });
+
+    // 2. 파일 업로드 선택 시 즉각 미리보기
+    if (fileInput) {
+      fileInput.onchange = function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (file) {
+          selectedAvatarFile = file;
+          document.querySelectorAll('.preset-avatar-btn').forEach(function (b) { b.classList.remove('active'); });
+          if (urlInput) urlInput.value = '';
+          var reader = new FileReader();
+          reader.onload = function (evt) {
+            updatePreview(evt.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+    }
+
+    // 3. URL 입력 시 즉각 미리보기
+    if (urlInput) {
+      urlInput.oninput = function () {
+        var val = this.value.trim();
+        if (val) {
+          selectedAvatarFile = null;
+          if (fileInput) fileInput.value = '';
+          document.querySelectorAll('.preset-avatar-btn').forEach(function (b) { b.classList.remove('active'); });
+          updatePreview(val);
+        }
+      };
+    }
+
+    // 4. 닉네임 입력 시 실시간 반영
+    if (nameInput && nickHeader) {
+      nameInput.oninput = function () {
+        nickHeader.textContent = this.value.trim() || '사용자';
+      };
+    }
+
+    // 5. 비밀번호 아코디언 토글
+    if (pwBtn && pwBox) {
+      pwBtn.onclick = function () {
+        var isHidden = (pwBox.style.display === 'none');
+        pwBox.style.display = isHidden ? 'block' : 'none';
+        pwBtn.classList.toggle('expanded', isHidden);
+      };
+    }
+
+    // 6. 폼 제출
+    if (form) {
+      form.onsubmit = async function (e) {
+        e.preventDefault();
+        var submitBtn = document.getElementById('profileSubmitBtn');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = Icons.sparkles(14) + ' 저장 중...';
+        }
+
+        var newName = nameInput ? nameInput.value.trim() : '';
+        var newPw = document.getElementById('profileNewPassword') ? document.getElementById('profileNewPassword').value : '';
+        var confirmPw = document.getElementById('profileConfirmPassword') ? document.getElementById('profileConfirmPassword').value : '';
+
+        if (!newName) {
+          U.toast('닉네임을 입력해주세요.', 'error');
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = Icons.save(14) + ' 프로필 변경사항 저장'; }
+          return;
+        }
+
+        if (newPw) {
+          if (newPw.length < 6) {
+            U.toast('새 비밀번호는 최소 6자 이상이어야 합니다.', 'error');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = Icons.save(14) + ' 프로필 변경사항 저장'; }
+            return;
+          }
+          if (newPw !== confirmPw) {
+            U.toast('새 비밀번호와 확인 입력이 일치하지 않습니다.', 'error');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = Icons.save(14) + ' 프로필 변경사항 저장'; }
+            return;
+          }
+        }
+
+        try {
+          var updateOptions = {
+            displayName: newName,
+            avatarUrl: selectedAvatarUrl,
+            avatarFile: selectedAvatarFile
+          };
+          if (newPw) {
+            updateOptions.password = newPw;
+          }
+
+          var result = await Auth.updateProfile(updateOptions);
+          if (!result.success) {
+            throw new Error(result.message || '프로필 수정에 실패했습니다.');
+          }
+
+          updateProfileUI(result.user);
+          closeModal();
+          U.toast('회원 정보 및 프로필 사진이 성공적으로 수정되었습니다!', 'success');
+        } catch (err) {
+          console.error('프로필 수정 오류:', err);
+          U.toast('저장 실패: ' + (err.message || err), 'error');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = Icons.save(14) + ' 프로필 변경사항 저장';
+          }
+        }
+      };
+    }
   }
 
   /* ========== 공통 유틸 및 뱃지 ========== */
@@ -1883,6 +2260,7 @@
       showTodoForm();
     },
     showNewVlogForm: function () { showVlogForm(); },
+    showProfileModal: showProfileModal,
     openCalDateAdd: function (dateStr) {
       if (!selectedPlanId) {
         U.toast('일정을 등록할 계획을 먼저 선택해주세요.', 'info');
