@@ -28,6 +28,21 @@
 
   <!-- [과제 7] 첫 화면: 웅장하고 부드러운 해리포터풍 마법 양장본 다이어리 (Harry Potter Hardcover 3D Scene) -->
   <section id="authScreen" class="auth-book-scene">
+    <!-- 로그인 화면 캔들라이트 테마 퀵 토글 컨트롤 -->
+    <div class="auth-theme-floating-bar">
+      <button id="authThemeToggleBtn" class="auth-theme-toggle-btn" type="button" title="심야 서재 캔들라이트 모드 ON/OFF" aria-label="캔들라이트 모드 토글">
+        <svg class="theme-icon-candle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2c.6 1.5 2 2.5 2 4 0 1.5-1 2.5-2 3-1-.5-2-1.5-2-3 0-1.5 1.4-2.5 2-4z" fill="#d4af37"
+            stroke="none" />
+          <path d="M9 9h6v12H9z" />
+          <path d="M7 21h10" />
+        </svg>
+        <span id="authThemeToggleText">캔들라이트 모드</span>
+        <span id="authThemeBadge" class="auth-theme-status-pill">OFF</span>
+      </button>
+    </div>
+
     <div id="closedDiaryBook" class="closed-diary-book harry-potter-book">
       <!-- 앤틱 가죽 책등(Spine) & 엠보싱 골드 리브 밴드 -->
       <div class="diary-book-spine">

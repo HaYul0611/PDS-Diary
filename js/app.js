@@ -313,7 +313,7 @@
       if (lockoutTimer) clearInterval(lockoutTimer);
 
       function updateMsg(s) {
-        showAuthError('⚠️ 보안을 위해 로그인이 ' + s + '초간 일시 제한됩니다. \n 잠시 후 다시 시도해주세요.');
+        showAuthLockout(s);
       }
 
       updateMsg(sec);
@@ -325,7 +325,10 @@
           lockoutTimer = null;
           localStorage.removeItem('pds_lockout_until');
           failedLoginAttempts = 0;
-          if (errorBox) errorBox.hidden = true;
+          if (errorBox) {
+            errorBox.hidden = true;
+            errorBox.innerHTML = '';
+          }
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.style.opacity = '';
@@ -338,11 +341,27 @@
 
     checkLockout();
 
+    function showAuthLockout(sec) {
+      if (errorBox) {
+        errorBox.hidden = false;
+        errorBox.className = 'auth-msg-box error lockout';
+        errorBox.innerHTML =
+          '<div class="lockout-badge-head">' +
+            '<span class="lockout-icon">⚠️</span>' +
+            '<strong class="lockout-head-title">보안을 위해 로그인이 일시 제한됩니다</strong>' +
+          '</div>' +
+          '<div class="lockout-desc-body">' +
+            '비밀번호 5회 연속 불일치로 다이어리를 일시 보호 중입니다.<br>' +
+            '<span class="lockout-countdown-wrap"><strong class="lockout-timer-val">' + sec + '초</strong> 후 다시 시도해 주세요.</span>' +
+          '</div>';
+      }
+    }
+
     function showAuthError(msg) {
       if (errorBox) {
         errorBox.hidden = false;
         errorBox.className = 'auth-msg-box error';
-        errorBox.textContent = msg;
+        errorBox.innerHTML = '<span class="auth-msg-icon">⚠️</span> ' + U.esc(msg);
       }
     }
 
@@ -350,7 +369,7 @@
       if (errorBox) {
         errorBox.hidden = false;
         errorBox.className = 'auth-msg-box success';
-        errorBox.textContent = msg;
+        errorBox.innerHTML = '<span class="auth-msg-icon">✓</span> ' + U.esc(msg);
       }
     }
 
@@ -606,6 +625,9 @@
   function bindThemeToggle() {
     var btn = document.getElementById('themeToggleBtn');
     var textEl = document.getElementById('themeToggleText');
+    var authBtn = document.getElementById('authThemeToggleBtn');
+    var authTextEl = document.getElementById('authThemeToggleText');
+    var authBadge = document.getElementById('authThemeBadge');
     var savedTheme = localStorage.getItem('pds_theme') || 'light';
 
     function applyTheme(theme) {
@@ -613,23 +635,38 @@
         document.body.classList.add('candlelight-theme');
         if (textEl) textEl.textContent = '주간 서재';
         if (btn) btn.setAttribute('title', '주간 서재 모드로 전환');
+        if (authBadge) {
+          authBadge.textContent = 'ON';
+          authBadge.classList.add('active');
+        }
+        if (authBtn) authBtn.setAttribute('title', '주간 서재 모드로 전환');
       } else {
         document.body.classList.remove('candlelight-theme');
         if (textEl) textEl.textContent = '캔들라이트';
         if (btn) btn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+        if (authBadge) {
+          authBadge.textContent = 'OFF';
+          authBadge.classList.remove('active');
+        }
+        if (authBtn) authBtn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
       }
     }
 
     applyTheme(savedTheme);
 
+    function toggleTheme() {
+      var isDark = document.body.classList.contains('candlelight-theme');
+      var nextTheme = isDark ? 'light' : 'dark';
+      localStorage.setItem('pds_theme', nextTheme);
+      applyTheme(nextTheme);
+      U.toast(nextTheme === 'dark' ? '심야 서재 캔들라이트 모드가 켜졌습니다.' : '주간 서재 모드가 켜졌습니다.', 'info');
+    }
+
     if (btn) {
-      btn.addEventListener('click', function () {
-        var isDark = document.body.classList.contains('candlelight-theme');
-        var nextTheme = isDark ? 'light' : 'dark';
-        localStorage.setItem('pds_theme', nextTheme);
-        applyTheme(nextTheme);
-        U.toast(nextTheme === 'dark' ? '심야 서재 캔들라이트 모드가 켜졌습니다.' : '주간 서재 모드가 켜졌습니다.', 'info');
-      });
+      btn.addEventListener('click', toggleTheme);
+    }
+    if (authBtn) {
+      authBtn.addEventListener('click', toggleTheme);
     }
   }
 
