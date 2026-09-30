@@ -102,7 +102,7 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   line-height: 1.6;
-  padding: 24px 14px 70px;
+  padding: 56px 24px 72px;
 }
 
 /* 로그인 화면(비로그인 상태)일 때는 바디의 고정 여백을 없애서 씬이 화면 전체(100vh)를 온전히 차지하도록 설정 */
@@ -4122,7 +4122,8 @@ body.candlelight-theme .tabs {
   z-index: 10;
 }
 
-body.candlelight-theme .tab {
+body.candlelight-theme .tab,
+body.candlelight-theme .tab[data-tab="plans"] {
   background: linear-gradient(180deg, #2a1c12 0%, #1c120a 100%) !important;
   color: #c4b098 !important;
   border: 1.5px solid #442f1d !important;
@@ -4137,7 +4138,8 @@ body.candlelight-theme .tab {
   font-weight: 700;
 }
 
-body.candlelight-theme .tab:hover {
+body.candlelight-theme .tab:hover,
+body.candlelight-theme .tab[data-tab="plans"]:hover {
   color: #ffd67a !important;
   background: linear-gradient(180deg, #3d2a1a 0%, #281b11 100%) !important;
   border-color: #d4af37 !important;
@@ -4147,7 +4149,8 @@ body.candlelight-theme .tab:hover {
     inset 0 1px 2px rgba(255, 214, 122, 0.15) !important;
 }
 
-body.candlelight-theme .tab.active {
+body.candlelight-theme .tab.active,
+body.candlelight-theme .tab[data-tab="plans"].active {
   background: linear-gradient(180deg, #382416 0%, #21160e 100%) !important;
   color: #ffe2a0 !important;
   border-color: #d4af37 !important;
