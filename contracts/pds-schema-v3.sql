@@ -106,3 +106,14 @@ DROP POLICY IF EXISTS "vlog-media 공개 읽기 허용" ON storage.objects;
 CREATE POLICY "vlog-media 공개 읽기 허용" ON storage.objects
   FOR SELECT TO public
   USING (bucket_id = 'vlog-media');
+
+-- 7. RLS 정책 및 외래키 조회 성능 최적화 인덱스 (성능 강화)
+-- auth.uid() = user_id 검사 및 연관 데이터 조회가 빈번하므로 필수 인덱스 생성
+CREATE INDEX IF NOT EXISTS idx_plans_user_id ON plans(user_id);
+CREATE INDEX IF NOT EXISTS idx_plan_history_user_id ON plan_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_todos_user_id ON todos(user_id);
+CREATE INDEX IF NOT EXISTS idx_records_user_id ON records(user_id);
+CREATE INDEX IF NOT EXISTS idx_vlog_entries_user_id ON vlog_entries(user_id);
+CREATE INDEX IF NOT EXISTS idx_todos_plan_id ON todos(plan_id);
+CREATE INDEX IF NOT EXISTS idx_records_todo_id ON records(todo_id);
+

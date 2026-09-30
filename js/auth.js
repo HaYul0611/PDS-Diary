@@ -124,7 +124,18 @@ var Auth = (function () {
     }
 
     try {
-      // 1. RPC 호출을 통해 auth.users에서 삭제 (DB ON DELETE CASCADE로 연관 plans, todos, records, vlog_entries 자동 삭제)
+      // 1. 스토리지(vlog-media)에 업로드된 본인 미디어 파일 일괄 삭제 (고아 파일 방지)
+      try {
+        var filesRes = await db.storage.from('vlog-media').list(currentUser.id);
+        if (filesRes.data && filesRes.data.length > 0) {
+          var paths = filesRes.data.map(function (f) { return currentUser.id + '/' + f.name; });
+          await db.storage.from('vlog-media').remove(paths);
+        }
+      } catch (storageErr) {
+        console.warn('스토리지 파일 정리 알림:', storageErr);
+      }
+
+      // 2. RPC 호출을 통해 auth.users에서 삭제 (DB ON DELETE CASCADE로 연관 plans, todos, records, vlog_entries 자동 삭제)
       var rpcRes = await db.rpc('delete_user_account');
       if (rpcRes.error) {
         // RPC가 없는 경우 대비: 수동으로 본인 데이터들을 삭제 후 로그아웃
@@ -135,7 +146,7 @@ var Auth = (function () {
         await db.from('vlog_entries').delete().eq('user_id', currentUser.id);
       }
 
-      // 로그아웃 처리
+      // 3. 로그아웃 처리
       await signOut();
       return { success: true, message: '계정과 모든 다이어리 기록이 영구적으로 삭제되었습니다.' };
     } catch (err) {

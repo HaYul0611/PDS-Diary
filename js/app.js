@@ -750,7 +750,7 @@
           if (currentTab === 'calendar') loadCalendar();
         } catch (err) {
           console.error(err);
-          U.toast('계획 저장 중 오류가 발생했습니다: ' + err.message, 'error');
+          U.toast(err.message || '계획 저장 중 오류가 발생했습니다.', 'error');
           if (submitBtn) submitBtn.disabled = false;
         }
       };

@@ -15,6 +15,9 @@ var Plans = {
 
   /* 생성 */
   create: async function(data) {
+    if (data.start_date && data.end_date && data.start_date > data.end_date) {
+      throw new Error('계획 시작일은 종료일보다 이전이어야 합니다.');
+    }
     var user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
     var payload = {
       title: data.title,
@@ -33,6 +36,9 @@ var Plans = {
 
   /* 수정 (이전 내용을 plan_history에 보존 후 업데이트) */
   update: async function(id, data, reason) {
+    if (data.start_date && data.end_date && data.start_date > data.end_date) {
+      throw new Error('계획 시작일은 종료일보다 이전이어야 합니다.');
+    }
     /* 1. 현재 값을 이력에 보존 (C08) */
     var current = await Plans.get(id);
     if (current) {

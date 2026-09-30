@@ -90,14 +90,14 @@ var Todos = {
     return res.data;
   },
 
-  /* 완료 처리 (C11 + C21 멱등성) */
+  /* 완료 처리 (C11 + C21 멱등성: 진행중 또는 보류 상태 모두 완료 가능) */
   complete: async function (id) {
     var key = 'complete-' + id + '-' + Date.now();
     var res = await db.from('todos').update({
       status: '완료',
       completed_at: new Date().toISOString(),
       idempotency_key: key
-    }).eq('id', id).eq('status', '진행중').select().single();
+    }).eq('id', id).neq('status', '완료').select().single();
     if (res.error) throw res.error;
     return res.data;
   },
