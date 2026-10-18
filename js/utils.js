@@ -18,7 +18,7 @@ var U = {
     var year = d.getFullYear();
     if (year > 2100) {
       // 오타 등으로 잘못 들어간 경우 보정
-      year = 2026;
+      year = new Date().getFullYear();
     }
     var m = d.getMonth() + 1;
     var day = d.getDate();

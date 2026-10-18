@@ -1,6 +1,17 @@
 /* === vlog.js — 사진·Vlog 일기 CRUD + Supabase 연동 모듈 === */
 
 var Vlog = {
+  calcDow: function (dateStr, fallback) {
+    if (dateStr && dateStr.includes('-')) {
+      var p = dateStr.split('-');
+      var d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+      var map = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      var calc = map[d.getDay()];
+      if (calc) return calc;
+    }
+    return fallback || 'sun';
+  },
+
   /* 본인의 사진·Vlog 일기 전체 목록 조회 (T07 RLS 적용) */
   list: async function () {
     try {
@@ -28,7 +39,7 @@ var Vlog = {
         return {
           id: it.id,
           date: it.date,
-          dayOfWeek: it.day_of_week || 'mon',
+          dayOfWeek: Vlog.calcDow(it.date, it.day_of_week),
           title: it.title || '',
           photos: cleanPhotos,
           content: it.content || '',
@@ -60,7 +71,7 @@ var Vlog = {
       return {
         id: it.id,
         date: it.date,
-        dayOfWeek: it.day_of_week || 'mon',
+        dayOfWeek: Vlog.calcDow(it.date, it.day_of_week),
         title: it.title || '',
         photos: cleanPhotos,
         content: it.content || '',
@@ -78,7 +89,7 @@ var Vlog = {
     var payload = {
       title: data.title ? data.title.trim() : '',
       date: data.date,
-      day_of_week: data.dayOfWeek || 'mon',
+      day_of_week: data.dayOfWeek || Vlog.calcDow(data.date, 'sun'),
       photos: Array.isArray(data.photos) ? data.photos : [],
       content: data.content || ''
     };
@@ -96,7 +107,7 @@ var Vlog = {
     var payload = {
       title: data.title ? data.title.trim() : '',
       date: data.date,
-      day_of_week: data.dayOfWeek || 'mon',
+      day_of_week: data.dayOfWeek || Vlog.calcDow(data.date, 'sun'),
       photos: Array.isArray(data.photos) ? data.photos : [],
       content: data.content || '',
       updated_at: new Date().toISOString()

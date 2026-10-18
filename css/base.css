@@ -1,0 +1,204 @@
+﻿/* === base.css — 폰트, 디자인 토큰, 3종 손글씨체 & 글로벌 베이스 === */
+/* ============================================================
+   P.D.S Canvas — 감성 웜 톤 (Warm Studio Calm) & 3종 손글씨체
+   [구조: 좌측 사이드바 + 우측 워크스페이스 / 모바일 슬라이딩 드로어]
+   [캘린더 & 사진·Vlog 스타일 100% 완전 보존 & 조화로운 통합]
+   ============================================================ */
+
+/* 1. 웹 폰트 임포트 */
+@import url('https://fonts.googleapis.com/css2?family=Dongle:wght@400;700&family=Gaegu:wght@400;700&family=JetBrains+Mono:wght@400;500;600;700&family=Nanum+Myeongjo:wght@700&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+/* '료' (U+B8CC) 글리프 보정: Gaegu 폰트에서 '료'가 '됴'로 왜곡되는 현상 원천 차단 */
+@font-face {
+  font-family: 'GaeguPatch';
+  src: local('Noto Sans KR Bold'), local('Noto Sans KR'), local('Apple SD Gothic Neo'), local('Malgun Gothic');
+  unicode-range: U+B8CC;
+  font-weight: 700 900;
+}
+
+@font-face {
+  font-family: 'GaeguPatch';
+  src: local('Noto Sans KR Medium'), local('Noto Sans KR Regular'), local('Noto Sans KR'), local('Apple SD Gothic Neo'), local('Malgun Gothic');
+  unicode-range: U+B8CC;
+  font-weight: 400 600;
+}
+
+/* ============================================================
+   2. 디자인 토큰 정의 (Light & Candlelight/Dark Mode)
+   ============================================================ */
+:root {
+  /* 웜 스튜디오 감성 컬러 팔레트 */
+  --bg: #f9f7f2;               /* 부드러운 웜 리넨 페이퍼 */
+  --sidebar-bg: #f2eee5;       /* 차분한 사이드바 톤 */
+  --surface: #ffffff;          /* 카드 및 패널 표면 */
+  --surface-elevated: #faf8f4; /* 내부 하이라이트 배경 */
+  --border: #e3ddd1;           /* 샴페인 베이지 보더 */
+  --border-subtle: #ede7dc;
+  --border2: #cfc5b4;
+  --paper-sub: #f2eee5;
+
+  --text: #24211d;            /* 딥 에스프레소 차콜 */
+  --text-pen: #302b25;
+  --text-mid: #544e45;
+  --text-muted: #8c8374;
+  --text2: #544e45;
+  --text3: #8c8374;
+
+  --primary: #2c2824;
+  --primary-text: #faf8f5;
+  --accent: #2d6a4f;          /* 포레스트 세이지 그린 */
+  --accent-warm: #b45309;     /* 웜 앰버 브론즈 */
+  --accent-soft: #fef3c7;
+  --accent-light: #e8f3ec;
+  --accent-hover: #1e4a37;
+  --accent-border: #a3d4be;
+
+  /* 색연필 & 스티커 액센트 */
+  --pencil-blue: #2563eb;
+  --pencil-blue-bg: #eff6ff;
+  --pencil-green: #16a34a;
+  --pencil-green-bg: #f0fdf4;
+  --pencil-yellow: #d97706;
+  --pencil-yellow-bg: #fffbeb;
+  --pencil-red: #dc2626;
+  --pencil-red-bg: #fef2f2;
+  --tape-color: rgba(220, 178, 150, 0.55);
+
+  /* 곡률 & 그림자 */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 3px rgba(36, 33, 29, 0.04);
+  --shadow-card: 0 4px 16px rgba(36, 33, 29, 0.06);
+  --shadow-lg: 0 16px 40px rgba(36, 33, 29, 0.09);
+  --shadow-dropdown: 0 12px 36px rgba(36, 33, 29, 0.14);
+
+  /* 3종 손글씨 및 조화로운 타이포그래피 */
+  --font-body: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-serif: 'Nanum Myeongjo', serif;
+  --font-gaegu: 'GaeguPatch', 'Gaegu', cursive, sans-serif;
+  --font-dongle: 'Dongle', sans-serif;
+  --font-pen: 'Nanum Pen Script', cursive;
+  --font-hand: var(--font-gaegu); /* 캘린더 및 헤더 공통 연동 */
+
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* ============================================================
+   3. 기본 리셋 및 전역 레이아웃
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  transition: background 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* 제목 손글씨 (Gaegu) */
+h1, h2, h3, .panel-heading, .card-title, .modal-header h3 {
+  font-family: var(--font-gaegu);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* 할 일 및 체크리스트 손글씨 (Dongle - 귀엽고 아기자기한 볼륨 보정) */
+.todo-title,
+.todo-card-title,
+#todosList .card-title {
+  font-family: var(--font-dongle) !important;
+  font-size: 1.48rem !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px;
+}
+
+/* 일기 본문 & 인용구 감성 펜글씨 (Nanum Pen Script) */
+.hand-pen-text,
+.quote-text,
+.vlog-text-content,
+.vlog-hand-body,
+.vlog-paragraph {
+  font-family: var(--font-pen) !important;
+  font-size: 1.35rem !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0.1px;
+}
+
+/* 펄스 인디케이터 링 */
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  position: relative;
+}
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ============================================================
+   4. 상단 오프라인 안내 배너
+   ============================================================ */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2500;
+  background: #fef2f2;
+  border-bottom: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.offline-banner.active.success {
+  background: #f0fdf4;
+  border-bottom-color: #bbf7d0;
+  color: #166534;
+}
+.offline-icon-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 8px;
+}

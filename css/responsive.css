@@ -1,0 +1,105 @@
+﻿/* === responsive.css — 모바일 & 태블릿 반응형 미디어 쿼리 === */
+/* ============================================================
+   15. 모바일 반응형 완벽 대응 (@media screen)
+   ============================================================ */
+@media (max-width: 960px) {
+  #app {
+    flex-direction: column;
+  }
+
+  .mobile-top-bar {
+    display: flex;
+  }
+
+  .diary-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 600;
+    transform: translateX(-100%);
+    box-shadow: none;
+    width: 280px;
+    min-width: 280px;
+  }
+
+  .diary-sidebar.drawer-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .drawer-close-btn {
+    display: block;
+  }
+
+  .diary-workspace-main {
+    padding: 20px 16px;
+    max-width: 100%;
+  }
+
+  .cal-cell {
+    min-height: 78px;
+    padding: 4px;
+  }
+  .cal-date-num {
+    font-size: 16px;
+  }
+  .cal-weekdays {
+    font-size: 16px;
+    padding: 6px 0;
+  }
+
+  .vlog-card {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .workspace-top-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cal-jump-pickers {
+    flex-wrap: wrap;
+  }
+  .cal-date-num {
+    font-size: 14px;
+  }
+  .cal-cell {
+    min-height: 64px;
+    padding: 3px 2px;
+  }
+  .cal-plan-highlighter {
+    height: 20px;
+    font-size: 13px;
+  }
+  .cal-plan-highlighter .hl-title {
+    font-size: 11px;
+  }
+  .cal-todo-sticker {
+    font-size: 10px;
+    padding: 1px 3px;
+  }
+  .cal-vlog-sticker {
+    padding: 2px 3px;
+  }
+  .cal-vlog-thumb-wrap {
+    width: 16px;
+    height: 16px;
+  }
+  .cal-vlog-title {
+    font-size: 11px;
+  }
+
+  .modal-card {
+    max-width: 95vw;
+    margin: 10px;
+  }
+  .toast {
+    left: 16px;

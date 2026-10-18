@@ -1,0 +1,178 @@
+﻿/* === records.css — 실행 기록(Do) 탭 스타일 (타임로그, 점선 일기 노트 버튼) === */
+/* ============================================================
+   9.5. 실행 기록 (Records) 하위 목록 스타일 (Image 5 완벽 대응)
+   ============================================================ */
+.records-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 16px;
+}
+.record-item {
+  padding: 14px 18px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.record-item:hover {
+  background: var(--surface);
+  border-color: var(--text-mid);
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-card);
+}
+.record-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.record-time-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.record-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+.record-time strong {
+  color: var(--text);
+  font-weight: 700;
+}
+.record-hours {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: var(--accent-soft);
+  color: var(--accent-warm);
+  border: 1px solid rgba(180, 83, 9, 0.2);
+}
+.record-blocker {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px dashed #fecaca;
+  border-radius: 6px;
+  color: #b91c1c;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.record-blocker strong {
+  color: #991b1b;
+  flex-shrink: 0;
+}
+.btn-icon-danger {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-icon-danger:hover {
+  color: #dc2626;
+  background: #fee2e2;
+  border-color: #fecaca;
+  transform: scale(1.08);
+}
+.no-records-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 14px 16px;
+  background: var(--surface-elevated);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+}
+
+.btn-record-add-dashed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--surface-elevated);
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-record-add-dashed:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+.btn-record-add-dashed svg {
+  flex-shrink: 0;
+}
+
+/* 필터 바 */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.sort-info {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* 빈 상태 (Empty state) */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+}
+.empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.empty-title {
+  font-family: var(--font-gaegu);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+.empty-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 6px auto 16px auto;
+  max-width: 360px;
+}

@@ -1,0 +1,323 @@
+/* === timer.css — 실시간 실행 타이머 & 뽀모도로 위젯 === */
+
+/* 플로팅 미니 타이머 (화면 자유 드래그 이동 & 최소화/닫기 지원) */
+.floating-timer-dock {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1500;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-lg);
+  padding: 8px 14px 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: timerFloatUp 0.3s ease;
+  touch-action: none;
+  user-select: none;
+}
+
+.floating-timer-dock.is-dragging {
+  transition: none !important;
+  cursor: grabbing !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+}
+
+.timer-drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+.timer-drag-handle:hover {
+  opacity: 1;
+}
+
+.floating-timer-dock.minimized {
+  padding: 6px 12px;
+  gap: 8px;
+  border-color: var(--accent);
+}
+.floating-timer-dock.minimized .timer-dock-title,
+.floating-timer-dock.minimized .timer-dock-actions {
+  display: none !important;
+}
+.floating-timer-dock.minimized .timer-dock-digits {
+  font-size: 13.5px;
+}
+
+@keyframes timerFloatUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.floating-timer-dock:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 32px rgba(45, 106, 79, 0.18);
+}
+
+.timer-dock-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(45, 106, 79, 0.7);
+  animation: timerPulse 1.8s infinite;
+}
+
+.timer-dock-pulse.paused {
+  background: #d97706;
+  animation: none;
+}
+
+@keyframes timerPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 106, 79, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(45, 106, 79, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 106, 79, 0); }
+}
+
+.timer-dock-info {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.timer-dock-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timer-dock-digits {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.timer-dock-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timer-btn-icon {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.timer-btn-icon:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.timer-btn-icon.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.timer-btn-icon.primary:hover {
+  background: var(--accent-hover);
+}
+
+/* 타이머 풀 모달 스타일 */
+.timer-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 0 6px;
+}
+
+.timer-mode-switcher {
+  display: inline-flex;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.timer-mode-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.timer-mode-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.timer-dial-container {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  margin: 10px 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-svg-circle {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.timer-circle-bg {
+  fill: none;
+  stroke: var(--border-subtle);
+  stroke-width: 8;
+}
+
+.timer-circle-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.35s ease;
+}
+
+.timer-dial-inner {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-dial-label {
+  font-size: 12px;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.timer-big-digits {
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.timer-target-info {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  width: 100%;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.timer-target-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.timer-target-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 320px;
+}
+
+.timer-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.timer-btn-save {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 4px 14px rgba(45, 106, 79, 0.25);
+  transition: var(--transition);
+}
+
+.timer-btn-save:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.timer-btn-secondary {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.timer-btn-secondary:hover {
+  background: var(--surface);
+  border-color: var(--text-mid);
+}
+
+/* 다크 모드 대응 */
+body.candlelight-theme .floating-timer-dock {
+  background: var(--surface);
+  border-color: var(--border2);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+body.candlelight-theme .timer-circle-bg {
+  stroke: var(--border);
+}

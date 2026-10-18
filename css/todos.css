@@ -1,0 +1,52 @@
+﻿/* === todos.css — 할 일(Do) 탭 전용 스타일 (손글씨, 체크리스트, 필터 툴바) === */
+#tabTodos .card-title {
+  font-family: var(--font-dongle);
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
+}
+#tabTodos .todo-item-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.todo-check-btn {
+  background: transparent;
+  border: 1.5px solid var(--border2);
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  color: transparent;
+  flex-shrink: 0;
+}
+.todo-check-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.todo-check-btn.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+.todo-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.todo-timer-badge:hover {
+  background: var(--accent);
+  color: #ffffff;
+}

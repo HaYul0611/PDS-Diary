@@ -27,12 +27,19 @@
     bindExport();
     bindOfflineDetection();
     bindThemeToggle();
+    bindSidebarControls();
     bindModal();
     bindEvents();
     bindCalendarControls();
     bindVlogControls();
     bindAuth();
+    updateDateDisplay();
+    initQuoteBanner();
     CustomSelect.enhanceAll(document);
+
+    // 신규 모듈 초기화 (타이머 & 치이카와 컴패니언)
+    if (typeof Timer !== 'undefined') Timer.init();
+    if (typeof Chiikawa !== 'undefined') Chiikawa.init();
 
     // [FOUC 방지] 저장된 활성 탭 UI 즉각 동기화 (DOM 클래스 및 하단 쪽수)
     syncTabUI(currentTab);
@@ -45,7 +52,6 @@
     }
   }
 
-  /* ========== 사용자 프로필 UI 동기화 (헤더 & 드롭다운) ========== */
   /* ========== 사용자 프로필 UI 동기화 (헤더 & 드롭다운) ========== */
   function updateProfileUI(user) {
     var emailText = document.getElementById('userEmailText');
@@ -678,19 +684,63 @@
         }
       }
     });
+
+    // 비밀번호 인라인 눈모양 토글 (모든 모달 및 로그인 화면 공통 지원)
+    document.addEventListener('click', function (e) {
+      var eyeBtn = e.target.closest('.pw-eye-btn');
+      if (!eyeBtn) return;
+      e.preventDefault();
+      var targetId = eyeBtn.getAttribute('data-target');
+      if (!targetId) return;
+      var targetInput = document.getElementById(targetId);
+      if (!targetInput) return;
+
+      var isPassword = (targetInput.type === 'password');
+      targetInput.type = isPassword ? 'text' : 'password';
+
+      // 아이콘 업데이트 (눈 열림 / 눈 닫힘 토글)
+      if (isPassword) {
+        eyeBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+        eyeBtn.classList.add('visible');
+        eyeBtn.setAttribute('title', '비밀번호 숨기기');
+      } else {
+        eyeBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        eyeBtn.classList.remove('visible');
+        eyeBtn.setAttribute('title', '비밀번호 보기');
+      }
+    });
   }
 
-  /* ========== 내보내기 ========== */
+  /* ========== 내보내기 & 복원 (Backup 모듈 연동) ========== */
   function bindExport() {
-    var btn = document.getElementById('exportBtn');
-    if (btn) {
-      btn.addEventListener('click', async function () {
+    var exportHandler = async function () {
+      if (typeof Backup !== 'undefined') {
+        await Backup.exportData();
+      } else {
         var ok = await U.exportAll();
-        if (ok) {
-          U.toast('모든 데이터를 JSON으로 내보냈습니다.', 'success');
-        }
-      });
-    }
+        if (ok) U.toast('모든 데이터를 JSON으로 내보냈습니다.', 'success');
+      }
+    };
+
+    var importHandler = function () {
+      if (typeof Backup !== 'undefined') {
+        Backup.openImportDialog();
+      } else {
+        U.toast('복원 모듈을 불러오는 중입니다.', 'info');
+      }
+    };
+
+    var btn = document.getElementById('exportBtn');
+    if (btn) btn.addEventListener('click', exportHandler);
+
+    var importBtn = document.getElementById('importBtn');
+    if (importBtn) importBtn.addEventListener('click', importHandler);
+
+    var ddExport = document.getElementById('dropdownExportBtn');
+    if (ddExport) ddExport.addEventListener('click', exportHandler);
+
+    var ddImport = document.getElementById('dropdownImportBtn');
+    if (ddImport) ddImport.addEventListener('click', importHandler);
   }
 
   /* ========== 오프라인 상태 감지 및 복구 안내 (고도화 요소 1) ========== */
@@ -725,27 +775,60 @@
     var authBtn = document.getElementById('authThemeToggleBtn');
     var authTextEl = document.getElementById('authThemeToggleText');
     var authBadge = document.getElementById('authThemeBadge');
+    var mobileBtn = document.getElementById('mobileThemeToggleBtn');
     var savedTheme = localStorage.getItem('pds_theme') || 'light';
+
+    var sunIconSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<circle cx="12" cy="12" r="4.5" fill="#fef3c7" stroke="#b45309"></circle>' +
+      '<path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.93 4.93l1.8 1.8M17.27 17.27l1.8 1.8M4.93 19.07l1.8-1.8M17.27 6.73l1.8-1.8" stroke="#b45309" stroke-width="2.2"></path>' +
+      '</svg>';
+    var moonIconSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#fef08a" stroke="#f59e0b"></path>' +
+      '<circle cx="19" cy="5" r="1.2" fill="#fef08a" stroke="none"></circle>' +
+      '<circle cx="15" cy="3" r="0.8" fill="#fef08a" stroke="none"></circle>' +
+      '</svg>';
 
     function applyTheme(theme) {
       if (theme === 'dark') {
         document.body.classList.add('candlelight-theme');
+        document.documentElement.classList.add('candlelight-theme');
         if (textEl) textEl.textContent = '주간 서재';
-        if (btn) btn.setAttribute('title', '주간 서재 모드로 전환');
+        if (btn) {
+          btn.setAttribute('title', '주간 서재 모드로 전환');
+          btn.innerHTML = sunIconSvg + '<span id="themeToggleText" style="display:none;" aria-hidden="true">주간 서재</span>';
+        }
         if (authBadge) {
           authBadge.textContent = 'ON';
           authBadge.classList.add('active');
         }
-        if (authBtn) authBtn.setAttribute('title', '주간 서재 모드로 전환');
+        if (authBtn) {
+          authBtn.setAttribute('title', '주간 서재 모드로 전환');
+          authBtn.setAttribute('aria-checked', 'true');
+        }
+        if (mobileBtn) {
+          mobileBtn.setAttribute('title', '주간 서재 모드로 전환');
+          mobileBtn.setAttribute('aria-checked', 'true');
+        }
       } else {
         document.body.classList.remove('candlelight-theme');
+        document.documentElement.classList.remove('candlelight-theme');
         if (textEl) textEl.textContent = '캔들라이트';
-        if (btn) btn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+        if (btn) {
+          btn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+          btn.innerHTML = moonIconSvg + '<span id="themeToggleText" style="display:none;" aria-hidden="true">캔들라이트</span>';
+        }
         if (authBadge) {
           authBadge.textContent = 'OFF';
           authBadge.classList.remove('active');
         }
-        if (authBtn) authBtn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+        if (authBtn) {
+          authBtn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+          authBtn.setAttribute('aria-checked', 'false');
+        }
+        if (mobileBtn) {
+          mobileBtn.setAttribute('title', '심야 서재 캔들라이트 모드로 전환');
+          mobileBtn.setAttribute('aria-checked', 'false');
+        }
       }
     }
 
@@ -765,6 +848,126 @@
     if (authBtn) {
       authBtn.addEventListener('click', toggleTheme);
     }
+    var mobileBtn = document.getElementById('mobileThemeToggleBtn');
+    if (mobileBtn) {
+      mobileBtn.addEventListener('click', toggleTheme);
+    }
+  }
+
+  /* ========== 사이드바 접기/펼치기 및 모바일 드로어 바인딩 ========== */
+  function bindSidebarControls() {
+    var burgerBtn = document.getElementById('mobileBurgerBtn');
+    var closeBtn = document.getElementById('drawerCloseBtn');
+    var overlay = document.getElementById('sidebarOverlay');
+    var sidebar = document.getElementById('appSidebar');
+    var collapseBtn = document.getElementById('sidebarCollapseBtn');
+    var expandBtn = document.getElementById('sidebarExpandBtn');
+    var appEl = document.getElementById('app');
+
+    function openMobileDrawer() {
+      if (sidebar) sidebar.classList.add('drawer-open');
+      if (overlay) overlay.classList.add('active');
+    }
+
+    function closeMobileDrawer() {
+      if (sidebar) sidebar.classList.remove('drawer-open');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    if (burgerBtn) burgerBtn.addEventListener('click', openMobileDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeMobileDrawer);
+    if (overlay) overlay.addEventListener('click', closeMobileDrawer);
+
+    // 데스크톱 사이드바 접기/펼치기 슬라이딩
+    function toggleDesktopSidebar(collapsed) {
+      if (!appEl) return;
+      if (collapsed) {
+        appEl.classList.add('sidebar-collapsed');
+        localStorage.setItem('pds_sidebar_collapsed', 'true');
+      } else {
+        appEl.classList.remove('sidebar-collapsed');
+        localStorage.setItem('pds_sidebar_collapsed', 'false');
+      }
+    }
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', function () {
+        toggleDesktopSidebar(true);
+      });
+    }
+    if (expandBtn) {
+      expandBtn.addEventListener('click', function () {
+        toggleDesktopSidebar(false);
+      });
+    }
+
+    // 저장된 데스크톱 사이드바 접힘 상태 복원
+    if (localStorage.getItem('pds_sidebar_collapsed') === 'true' && window.innerWidth > 960) {
+      if (appEl) appEl.classList.add('sidebar-collapsed');
+    }
+
+    // 모바일에서 탭 클릭 시 드로어 자동 닫힘
+    document.querySelectorAll('.tab').forEach(function (t) {
+      t.addEventListener('click', function () {
+        if (window.innerWidth <= 960) {
+          closeMobileDrawer();
+        }
+      });
+    });
+  }
+
+  /* ========== 상단 헤더 오늘 날짜 표시 동기화 ========== */
+  function updateDateDisplay() {
+    var dateEl = document.getElementById('currentDateDisplay');
+    if (!dateEl) return;
+    var d = new Date();
+    var days = ['일', '월', '화', '수', '목', '금', '토'];
+    var y = d.getFullYear();
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    var dow = days[d.getDay()];
+    dateEl.textContent = y + '. ' + m + '. ' + day + '. (' + dow + ')';
+  }
+
+  /* ========== 감성 명언 로테이션 기능 ========== */
+  var DIARY_QUOTES = [
+    '계획은 내일의 나에게 건네는 다정한 약속이고, 실행은 오늘의 나를 마주하는 정직한 시간입니다.',
+    '완벽한 하루보다 중요한 것은, 오늘 한 걸음 내디딘 나의 작은 실천입니다.',
+    '생각을 종이 위에 적는 순간, 모호했던 불안은 명확한 계획이 됩니다.',
+    '서두르지 않아도 괜찮습니다. 나만의 속도로 차분하게 채워가는 하루.',
+    '오늘 기록한 작은 순간들이 모여 내일의 단단한 내가 됩니다.',
+    '실패는 계획의 끝이 아니라, 다음 실행을 더 지혜롭게 만드는 소중한 힌트입니다.',
+    '하루의 끝에서 나를 칭찬해주는 것, 그것이 가장 따뜻한 피드백입니다.',
+    '해야 할 일에 쫓기기보다, 내가 선택한 오늘을 온전히 살아내기.',
+    '기록되지 않은 시간은 흩어지지만, 기록된 오늘은 나의 역사가 됩니다.',
+    '작은 성취를 기뻐할 줄 아는 마음이 매일 나를 앞으로 나아가게 합니다.'
+  ];
+  var currentQuoteIndex = 0;
+
+  function initQuoteBanner() {
+    var quoteEl = document.getElementById('quoteText');
+    var refreshBtn = document.getElementById('quoteRefreshBtn');
+    if (!quoteEl || !refreshBtn) return;
+
+    var savedIdx = parseInt(localStorage.getItem('pds_quote_index') || '0', 10);
+    if (!isNaN(savedIdx) && savedIdx >= 0 && savedIdx < DIARY_QUOTES.length) {
+      currentQuoteIndex = savedIdx;
+    }
+    quoteEl.textContent = '"' + DIARY_QUOTES[currentQuoteIndex] + '"';
+
+    refreshBtn.addEventListener('click', function () {
+      refreshBtn.classList.add('rotating');
+      quoteEl.style.opacity = '0';
+      setTimeout(function () {
+        currentQuoteIndex = (currentQuoteIndex + 1) % DIARY_QUOTES.length;
+        localStorage.setItem('pds_quote_index', String(currentQuoteIndex));
+        quoteEl.textContent = '"' + DIARY_QUOTES[currentQuoteIndex] + '"';
+        quoteEl.style.opacity = '1';
+        setTimeout(function () {
+          refreshBtn.classList.remove('rotating');
+        }, 300);
+      }, 180);
+    });
   }
 
   /* ========== 모달 ========== */
@@ -935,6 +1138,23 @@
   /* ========== 계획 폼 (생성/수정) ========== */
   function showPlanForm(plan) {
     var isEdit = !!plan;
+    var currentPlanColor = (plan && (localStorage.getItem('pds_plan_color_' + plan.id) || plan.color)) || '#f59e0b';
+    var PRESET_COLORS = [
+      { color: '#f59e0b', name: '웜 앰버' },
+      { color: '#f43f5e', name: '로즈 코랄' },
+      { color: '#10b981', name: '세이지 그린' },
+      { color: '#0ea5e9', name: '스카이 블루' },
+      { color: '#8b5cf6', name: '라벤더 퍼플' },
+      { color: '#eab308', name: '레몬 버터' }
+    ];
+
+    var colorChipsHtml = PRESET_COLORS.map(function (pc) {
+      var isSel = (pc.color.toLowerCase() === currentPlanColor.toLowerCase());
+      return '<button type="button" class="plan-color-chip-btn ' + (isSel ? 'active' : '') + '" data-color="' + pc.color + '" style="background:' + pc.color + ';" title="' + pc.name + '">' +
+        (isSel ? '<span class="color-check">✓</span>' : '') +
+        '</button>';
+    }).join('');
+
     var html = '<form id="planForm">' +
       '<div class="form-group">' +
       '<label>계획 제목</label>' +
@@ -948,6 +1168,17 @@
       '<div class="form-group">' +
       '<label>종료일</label>' +
       '<input class="input" type="date" name="end_date" value="' + (plan ? U.formatDateInput(plan.end_date) : U.daysFromToday(30)) + '" required>' +
+      '</div>' +
+      '</div>' +
+      '<div class="form-group">' +
+      '<label>스케줄 색상띠 (캘린더 하이라이터 색상)</label>' +
+      '<div class="plan-color-picker-grid" id="planColorPickerGrid">' +
+      colorChipsHtml +
+      '<div class="plan-custom-color-wrap">' +
+      '<input type="color" id="planCustomColorInput" class="plan-custom-color-input" value="' + currentPlanColor + '" title="직접 색상 선택">' +
+      '<span>직접 선택</span>' +
+      '</div>' +
+      '<input type="hidden" name="color" id="selectedPlanColorInput" value="' + currentPlanColor + '">' +
       '</div>' +
       '</div>' +
       '<div class="form-row">' +
@@ -984,6 +1215,30 @@
 
     var form = document.getElementById('planForm');
     if (form) {
+      // 색상 칩 선택 이벤트
+      var colorInput = document.getElementById('selectedPlanColorInput');
+      var customColorInput = document.getElementById('planCustomColorInput');
+      var chips = form.querySelectorAll('.plan-color-chip-btn');
+
+      chips.forEach(function (btn) {
+        btn.onclick = function () {
+          chips.forEach(function (b) { b.classList.remove('active'); b.innerHTML = ''; });
+          btn.classList.add('active');
+          btn.innerHTML = '<span class="color-check">✓</span>';
+          var c = btn.getAttribute('data-color');
+          if (colorInput) colorInput.value = c;
+          if (customColorInput) customColorInput.value = c;
+        };
+      });
+
+      if (customColorInput) {
+        customColorInput.oninput = function () {
+          var c = this.value;
+          chips.forEach(function (b) { b.classList.remove('active'); b.innerHTML = ''; });
+          if (colorInput) colorInput.value = c;
+        };
+      }
+
       form.onsubmit = async function (e) {
         e.preventDefault();
         var submitBtn = form.querySelector('button[type="submit"]');
@@ -991,14 +1246,19 @@
 
         var fd = new FormData(this);
         var data = Object.fromEntries(fd);
+        var chosenColor = form.querySelector('#selectedPlanColorInput') ? form.querySelector('#selectedPlanColorInput').value : '#f59e0b';
 
         try {
           if (isEdit) {
+            localStorage.setItem('pds_plan_color_' + plan.id, chosenColor);
             await Plans.update(plan.id, data, data.change_reason);
             U.toast('계획이 수정되었습니다.', 'success');
           } else {
             var created = await Plans.create(data);
-            if (created) selectedPlanId = created.id;
+            if (created) {
+              selectedPlanId = created.id;
+              localStorage.setItem('pds_plan_color_' + created.id, chosenColor);
+            }
             U.toast('새 계획이 생성되었습니다.', 'success');
           }
           closeModal();
@@ -1022,10 +1282,11 @@
     var yearSel = document.getElementById('calYearSelect');
     var monthSel = document.getElementById('calMonthSelect');
 
-    // 연도 셀렉트 옵션 채우기 (2023 ~ 2032)
+    // 연도 셀렉트 옵션 채우기 (현재 연도 기준 -5년 ~ +6년)
     if (yearSel) {
+      var curY = new Date().getFullYear();
       var yHtml = '';
-      for (var y = 2023; y <= 2032; y++) {
+      for (var y = curY - 5; y <= curY + 6; y++) {
         yHtml += '<option value="' + y + '">' + y + '년</option>';
       }
       yearSel.innerHTML = yHtml;
@@ -1147,11 +1408,14 @@
         var isSingle = (isStart && isEnd);
         var cls = isSingle ? 'hl-single' : (isStart ? 'hl-start' : (isEnd ? 'hl-end' : 'hl-mid'));
 
+        var pColor = localStorage.getItem('pds_plan_color_' + p.id) || p.color || '#f59e0b';
+        var hlStyle = 'background: ' + pColor + '30 !important; border-color: ' + pColor + 'aa !important;';
+
         var titleHtml = (isStart || isSingle)
-          ? '<span class="hl-title">' + Icons.bookOpen(11) + ' ' + U.esc(p.title) + '</span>'
+          ? '<span class="hl-title" style="color: ' + pColor + ' !important;">' + Icons.bookOpen(11) + ' ' + U.esc(p.title) + '</span>'
           : '';
 
-        return '<div class="cal-plan-highlighter ' + cls + '" title="[계획] ' + U.esc(p.title) + ' (' + s + ' ~ ' + e + ')" onclick="event.stopPropagation(); App.editPlan(\'' + p.id + '\');">' +
+        return '<div class="cal-plan-highlighter ' + cls + '" style="' + hlStyle + '" title="[계획] ' + U.esc(p.title) + ' (' + s + ' ~ ' + e + ')" onclick="event.stopPropagation(); App.editPlan(\'' + p.id + '\');">' +
           titleHtml +
           '</div>';
       }).join('');
@@ -1309,18 +1573,19 @@
         var dowMap2 = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         calculatedDow = dowMap2[nowD.getDay()];
       }
-      var dayStr = monthNum + ' / ' + dayNum;
+      var dayStr = monthNum + '&nbsp;/&nbsp;' + dayNum;
 
-      // 요일 스탬프: 사용자가 지정한 요일이 유효하면 사용하고, 그렇지 않거나 누락된 경우 날짜 기준 정확한 요일 자동 반영
-      var daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-      var activeDay = item.dayOfWeek || calculatedDow || 'mon';
-      if (calculatedDow && (!item.dayOfWeek || item.dayOfWeek === 'mon' && calculatedDow !== 'mon')) {
-        activeDay = calculatedDow;
-      }
+      // 요일 스탬프: 날짜(date)가 유효하면 달력 상 실제 요일(calculatedDow)을 최우선으로 정확히 반영
+      var daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      var activeDay = calculatedDow || item.dayOfWeek || 'sun';
       var dayPillsHtml = daysOfWeek.map(function (dw) {
         var isCur = (dw === activeDay);
-        return '<span class="vlog-dw-pill' + (isCur ? ' active' : '') + '">' + dw + '</span>';
-      }).join(' ');
+        var cls = 'vlog-dw-pill';
+        if (isCur) cls += ' active';
+        if (dw === 'sun') cls += ' dow-sun';
+        if (dw === 'sat') cls += ' dow-sat';
+        return '<span class="' + cls + '">' + dw + '</span>';
+      }).join('');
 
       // 다중 사진/영상 캐러셀 렌더링
       var rawPhotos = item.photos || [];
@@ -1385,14 +1650,16 @@
       : '';
 
     var initialDate = isEdit ? existingItem.date : U.todaySeoul();
-    var initialDow = (isEdit && existingItem.dayOfWeek) ? existingItem.dayOfWeek : '';
-    if (!initialDow && initialDate && initialDate.includes('-')) {
+    var initialDow = '';
+    if (initialDate && initialDate.includes('-')) {
       var dParts = initialDate.split('-');
       var dtObj = new Date(parseInt(dParts[0], 10), parseInt(dParts[1], 10) - 1, parseInt(dParts[2], 10));
       var dwList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-      initialDow = dwList[dtObj.getDay()] || 'mon';
+      initialDow = dwList[dtObj.getDay()];
     }
-    if (!initialDow) initialDow = 'mon';
+    if (!initialDow) {
+      initialDow = (isEdit && existingItem.dayOfWeek) ? existingItem.dayOfWeek : 'sun';
+    }
 
     var html = '<form id="vlogForm">' +
       '<div class="form-tip-banner">' +
@@ -1411,13 +1678,13 @@
       '<label>요일 스탬프</label>' +
       '<div class="select-wrapper">' +
       '<select class="select" name="dayOfWeek">' +
+      '<option value="sun"' + (initialDow === 'sun' ? ' selected' : '') + '>일요일 (sun)</option>' +
       '<option value="mon"' + (initialDow === 'mon' ? ' selected' : '') + '>월요일 (mon)</option>' +
       '<option value="tue"' + (initialDow === 'tue' ? ' selected' : '') + '>화요일 (tue)</option>' +
       '<option value="wed"' + (initialDow === 'wed' ? ' selected' : '') + '>수요일 (wed)</option>' +
       '<option value="thu"' + (initialDow === 'thu' ? ' selected' : '') + '>목요일 (thu)</option>' +
       '<option value="fri"' + (initialDow === 'fri' ? ' selected' : '') + '>금요일 (fri)</option>' +
       '<option value="sat"' + (initialDow === 'sat' ? ' selected' : '') + '>토요일 (sat)</option>' +
-      '<option value="sun"' + (initialDow === 'sun' ? ' selected' : '') + '>일요일 (sun)</option>' +
       '</select>' +
       '</div>' +
       '</div>' +
@@ -1608,9 +1875,10 @@
             ? '<button class="btn-revert" type="button" onclick="App.revertTodo(\'' + t.id + '\')">' + Icons.rotateCcw(14) + ' 진행 중으로 되돌리기</button>'
             : t.status === '보류'
               ? '<button class="btn-revert" type="button" onclick="App.togglePendingTodo(\'' + t.id + '\', \'진행중\')">' + Icons.play(13) + ' 진행 재개</button>' +
-              '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>'
-              : '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\')">' + Icons.check(14) + ' 완료 처리</button>' +
+              '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\',\'' + U.esc(t.title).replace(/'/g, "\\'") + '\')">' + Icons.check(14) + ' 완료 처리</button>'
+              : '<button class="btn-complete" type="button" onclick="App.completeTodo(\'' + t.id + '\',\'' + U.esc(t.title).replace(/'/g, "\\'") + '\')">' + Icons.check(14) + ' 완료 처리</button>' +
               '<button class="btn-outline btn-pending-toggle" type="button" title="할 일을 보류 상태로 변경합니다" onclick="App.togglePendingTodo(\'' + t.id + '\', \'보류\')">' + Icons.pause(13) + ' 보류</button>') +
+          '<button class="btn-outline todo-timer-badge" type="button" title="실행 타이머 시작" onclick="App.startTimer(\'' + t.id + '\',\'' + U.esc(t.title).replace(/'/g, "\\'") + '\')">' + Icons.clock(13) + ' 타이머</button>' +
           '<button class="btn-outline" type="button" onclick="App.addRecord(\'' + t.id + '\')">' + Icons.play(13) + ' 실행 기록</button>' +
           '<button class="btn-outline" type="button" onclick="App.editTodo(\'' + t.id + '\')">' + Icons.edit(13) + ' 수정</button>' +
           '<button class="btn-danger" type="button" onclick="App.confirmDeleteTodo(\'' + t.id + '\',\'' + U.esc(t.title) + '\')">' + Icons.trash(13) + ' 삭제</button>' +
@@ -1778,8 +2046,8 @@
         }
 
         html += '<div class="card-actions">' +
-          '<button class="btn-outline" type="button" onclick="App.addRecord(\'' + t.id + '\')">' +
-          Icons.play(13) + ' 실행 기록 추가' +
+          '<button class="btn-record-add-dashed" type="button" onclick="App.addRecord(\'' + t.id + '\')">' +
+          Icons.plus(13) + ' 실천 기록 추가하기' +
           '</button>' +
           '</div></div>';
       }
@@ -1860,6 +2128,7 @@
         '</div>';
       if (naEl) naEl.innerHTML = '';
       if (drillEl) { drillEl.hidden = true; drillEl.innerHTML = ''; }
+      if (typeof Heatmap !== 'undefined') Heatmap.render('reviewHeatmapArea', null);
       return;
     }
 
@@ -1873,14 +2142,18 @@
       var diffClass = d.diffHours > 0 ? 'negative' : d.diffHours < 0 ? 'positive' : '';
       var diffSign = d.diffHours > 0 ? '+' : '';
 
+      var completionRate = d.total > 0 ? Math.round((d.completed / d.total) * 100) : 0;
+      var rateClass = completionRate >= 80 ? 'positive' : completionRate >= 50 ? 'warning' : '';
+
       dashEl.innerHTML =
         dashCard('total', '전체 할 일', d.total, '', Icons.list(20)) +
         dashCard('completed', '완료된 일', d.completed, 'positive', Icons.check(20)) +
-        dashCard('delayed', '마감 지연', d.delayed, d.delayed > 0 ? 'negative' : '', Icons.alertCircle(20)) +
-        dashCard('blocked', '막힘 발생', d.blocked, d.blocked > 0 ? 'negative' : '', Icons.flag(20)) +
+        dashCard('rate', '목표 달성률', completionRate + '%', rateClass, Icons.target(20)) +
         dashCard('estHours', '예상 시간', d.estHours + 'h', '', Icons.clock(18)) +
         dashCard('actHours', '실제 실행 시간', d.actHours + 'h', '', Icons.play(18)) +
-        dashCard('diffHours', '시간 오차', diffSign + d.diffHours + 'h', diffClass, Icons.history(18));
+        dashCard('diffHours', '시간 오차', diffSign + d.diffHours + 'h', diffClass, Icons.history(18)) +
+        dashCard('delayed', '마감 지연', d.delayed, d.delayed > 0 ? 'negative' : '', Icons.alertCircle(20)) +
+        dashCard('blocked', '막힘 발생', d.blocked, d.blocked > 0 ? 'negative' : '', Icons.flag(20));
 
       /* 다음 계획으로 넘길 한 줄 (C33) */
       if (naEl) {
@@ -1909,11 +2182,17 @@
         }
       }
 
+      /* 실천 잔디밭 (Habit Activity Grass) 렌더링 */
+      if (typeof Heatmap !== 'undefined') {
+        Heatmap.render('reviewHeatmapArea', selectedPlanId);
+      }
+
       /* 드릴다운 이벤트 */
       document.querySelectorAll('.dash-card[data-type]').forEach(function (card) {
         card.onclick = async function () {
           var type = card.dataset.type;
-          var items = await Review.drillDown(selectedPlanId, type);
+          var fetchType = type === 'rate' ? 'completed' : type;
+          var items = await Review.drillDown(selectedPlanId, fetchType);
           var label = card.querySelector('.dash-label').textContent;
 
           if (drillEl) {
@@ -2111,11 +2390,21 @@
       '<div id="pwFieldsBox" class="pw-fields-box" style="display: none;">' +
       '<div class="form-group">' +
       '<label>새 비밀번호 (6자 이상)</label>' +
+      '<div class="pw-input-wrap">' +
       '<input class="input" type="password" id="profileNewPassword" placeholder="변경할 경우에만 입력">' +
+      '<button type="button" class="pw-eye-btn" data-target="profileNewPassword" title="비밀번호 보기/숨기기" aria-label="비밀번호 표시 토글">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
+      '</button>' +
+      '</div>' +
       '</div>' +
       '<div class="form-group">' +
       '<label>새 비밀번호 확인</label>' +
+      '<div class="pw-input-wrap">' +
       '<input class="input" type="password" id="profileConfirmPassword" placeholder="새 비밀번호를 한번 더 입력">' +
+      '<button type="button" class="pw-eye-btn" data-target="profileConfirmPassword" title="비밀번호 보기/숨기기" aria-label="비밀번호 표시 토글">' +
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
+      '</button>' +
+      '</div>' +
       '</div>' +
       '</div>' +
       '</div>' +
@@ -2202,8 +2491,9 @@
     if (pwBtn && pwBox) {
       pwBtn.onclick = function () {
         var isHidden = (pwBox.style.display === 'none');
-        pwBox.style.display = isHidden ? 'block' : 'none';
+        pwBox.style.display = isHidden ? 'flex' : 'none';
         pwBtn.classList.toggle('expanded', isHidden);
+        pwBtn.classList.toggle('open', isHidden);
       };
     }
 
@@ -2373,10 +2663,23 @@
         U.toast('할 일 정보를 불러오지 못했습니다: ' + err.message, 'error');
       }
     },
-    completeTodo: async function (id) {
+    startTimer: function (todoId, todoTitle) {
+      if (typeof Timer !== 'undefined') {
+        Timer.start(todoId, todoTitle);
+        Timer.openModal();
+      }
+    },
+    completeTodo: async function (id, title) {
       try {
-        await Todos.complete(id);
+        var completed = await Todos.complete(id);
         U.toast('할 일이 완료되었습니다.', 'success');
+
+        // 치이카와 축하 리액션 & 콘페티 트리거
+        if (typeof Chiikawa !== 'undefined') {
+          var tTitle = title || (completed && completed.title) || '할 일';
+          Chiikawa.celebrate(tTitle);
+        }
+
         if (currentTab === 'calendar') loadCalendar();
         else loadTodos();
       } catch (err) {

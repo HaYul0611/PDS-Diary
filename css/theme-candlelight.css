@@ -1,0 +1,110 @@
+/* === theme-candlelight.css — 심야 서재 캔들라이트 테마 (다크 모드) === */
+
+body.candlelight-theme,
+html.candlelight-theme body,
+[data-theme="dark"] {
+  --bg: #141312;
+  --sidebar-bg: #1a1816;
+  --surface: #201e1b;
+  --surface-elevated: #272421;
+  --border: #2d2925;
+  --border-subtle: #24201c;
+  --border2: #38342f;
+  --paper-sub: #1a1816;
+
+  --text: #f6f4f0;
+  --text-pen: #eae6df;
+  --text-mid: #b0a99c;
+  --text-muted: #787063;
+  --text2: #b0a99c;
+  --text3: #787063;
+
+  --primary: #f6f4f0;
+  --primary-text: #141312;
+  --accent: #34d399;
+  --accent-warm: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --accent-light: rgba(52, 211, 153, 0.12);
+  --accent-hover: #6ee7b7;
+  --accent-border: #059669;
+
+  --pencil-blue-bg: #172554;
+  --pencil-green-bg: #14532d;
+  --pencil-yellow-bg: #451a03;
+  --pencil-red-bg: #450a0a;
+  --tape-color: rgba(180, 83, 9, 0.35);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.65);
+  --shadow-dropdown: 0 14px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* 캘린더 다크 모드 가독성 완벽 개선 (기간 형광펜 & 스티커 텍스트) */
+body.candlelight-theme .cal-plan-highlighter {
+  background: rgba(245, 158, 11, 0.25) !important;
+  border-top: 1.5px solid rgba(251, 191, 36, 0.6) !important;
+  border-bottom: 1.5px solid rgba(251, 191, 36, 0.6) !important;
+  color: #fef08a !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+body.candlelight-theme .cal-plan-highlighter:hover {
+  background: rgba(245, 158, 11, 0.4) !important;
+}
+body.candlelight-theme .cal-plan-highlighter .hl-title {
+  color: #fef08a !important;
+  font-weight: 700;
+}
+body.candlelight-theme .cal-plan-highlighter .hl-title svg {
+  stroke: #fef08a !important;
+}
+
+body.candlelight-theme .cal-todo-sticker.red {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+body.candlelight-theme .cal-todo-sticker.blue {
+  background: rgba(59, 130, 246, 0.22) !important;
+  color: #93c5fd !important;
+  border-color: rgba(59, 130, 246, 0.45) !important;
+}
+body.candlelight-theme .cal-todo-sticker.yellow {
+  background: rgba(245, 158, 11, 0.22) !important;
+  color: #fde047 !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+body.candlelight-theme .cal-todo-sticker.done {
+  background: rgba(34, 197, 94, 0.22) !important;
+  color: #86efac !important;
+  border-color: rgba(34, 197, 94, 0.45) !important;
+}
+
+body.candlelight-theme .cal-vlog-sticker {
+  background: #272421 !important;
+  border-color: #38342f !important;
+}
+body.candlelight-theme .cal-vlog-title {
+  color: #f6f4f0 !important;
+}
+
+body.candlelight-theme .today-tag {
+  background: rgba(52, 211, 153, 0.18) !important;
+  color: #34d399 !important;
+}
+
+/* 삭제 확인 모달 */
+body.candlelight-theme .delete-dialog-card {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.35);
+}
+body.candlelight-theme .delete-dialog-desc {
+  color: #fca5a5;
+}
+body.candlelight-theme .delete-dialog-title {
+  color: #f87171;
+}
+body.candlelight-theme .history-item {
+  background: var(--surface);
+  border-color: var(--border);
+}

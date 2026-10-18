@@ -1,0 +1,305 @@
+/* === vlog.css — 사진 · Vlog 일기 (폴라로이드 프레임, 이미지 캐러셀 슬라이더) === */
+/* ============================================================
+   12. ★ 사진 · Vlog 일기 스타일 (100% 완전 보존 & 캐러셀) ★
+   ============================================================ */
+.vlog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.vlog-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px 30px;
+  box-shadow: 0 8px 24px rgba(60, 48, 35, 0.08);
+  position: relative;
+  max-width: 750px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.vlog-tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 20px;
+  background: var(--tape-color);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.vlog-header-stamps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 10px;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.vlog-dw-group {
+  display: flex;
+  gap: 3px;
+  flex-wrap: nowrap;
+  align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.vlog-dw-pill {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #8c827a);
+  padding: 1.5px 5.5px;
+  border-radius: 10px;
+  text-transform: lowercase;
+  white-space: nowrap;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.vlog-dw-pill.dow-sun {
+  color: #ef4444;
+}
+
+.vlog-dw-pill.dow-sat {
+  color: #3b82f6;
+}
+
+.vlog-dw-pill.active {
+  background: var(--pencil-yellow-bg, #fef3c7);
+  color: var(--pencil-yellow, #b45309);
+  border: 1px solid #eed8b1;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.12);
+}
+
+.vlog-dw-pill.active.dow-sun {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  box-shadow: 0 1px 3px rgba(185, 28, 28, 0.12);
+}
+
+.vlog-dw-pill.active.dow-sat {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.12);
+}
+
+.vlog-date-badge {
+  font-family: var(--font-hand);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* 폴라로이드 프레임 */
+.vlog-polaroid-frame {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  margin-bottom: 18px;
+  position: relative;
+}
+
+/* 캐러셀 슬라이더 */
+.vlog-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.vlog-carousel-track {
+  display: flex;
+  transition: transform 0.38s cubic-bezier(0.25, 1, 0.5, 1);
+  width: 100%;
+}
+.carousel-slide {
+  min-width: 100%;
+  width: 100%;
+  flex-shrink: 0;
+  text-align: center;
+}
+.vlog-photo-img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+.vlog-media-embed {
+  width: 100%;
+  height: 360px;
+  border: none;
+  border-radius: 4px;
+}
+
+/* 캐러셀 네비게이션 버튼 */
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.92);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-hand);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+.vlog-polaroid-frame:hover .carousel-nav-btn,
+.vlog-carousel:hover .carousel-nav-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1);
+}
+.carousel-nav-btn:hover {
+  background: #ffffff;
+  color: var(--accent);
+  transform: translateY(-50%) scale(1.12) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+@media (hover: none) {
+  .carousel-nav-btn {
+    opacity: 0.9;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1);
+  }
+}
+.carousel-nav-btn.prev { left: 10px; }
+.carousel-nav-btn.next { right: 10px; }
+
+/* 캐러셀 도트 인디케이터 */
+.carousel-dots-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+.carousel-dot.active {
+  background: var(--accent);
+  width: 22px;
+  border-radius: 10px;
+}
+
+.vlog-doodle-flower {
+  font-size: 24px;
+  text-align: center;
+  margin: 10px 0 14px;
+  color: var(--accent);
+}
+
+.vlog-hand-body {
+  line-height: 1.85;
+  color: var(--text-pen);
+  padding: 6px 16px 12px;
+  word-break: keep-all;
+}
+.vlog-title-hash {
+  font-family: var(--font-gaegu);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.vlog-text-content {
+  color: var(--text-pen);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.vlog-paragraph {
+  margin-bottom: 12px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.vlog-note-point {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 8px 0;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.vlog-note-point .note-hash {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 22px;
+  flex-shrink: 0;
+  font-family: var(--font-gaegu);
+}
+.vlog-note-point .note-bullet {
+  color: var(--accent);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.vlog-note-point .note-text {
+  flex: 1;
+}
+.vlog-quote-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  padding: 5px 14px;
+  background: var(--accent-light);
+  border-left: 3.5px solid var(--accent);
+  border-radius: 4px 10px 10px 4px;
+  color: var(--text);
+  font-family: var(--font-pen);
+  font-size: 21px;
+}
+.vlog-quote-badge .quote-icon {
+  color: var(--accent);
+  display: inline-flex;
+}
+.vlog-line-gap {
+  height: 14px;
+}
+.vlog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1.5px dashed var(--border);
+}
